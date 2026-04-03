@@ -9,10 +9,10 @@ const router = express.Router();
 
 router
   .route('/profile')
-  .get(auth(USER_ROLES.ADMIN, USER_ROLES.USER), UserController.getUserProfile)
+  .get(auth(), UserController.getUserProfile)
   .patch(
-    auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.USER),
-    fileUploadHandler(),
+    auth(),
+    fileUploadHandler([{name:'cover',type:['image/jpeg'],maxCount:1}]),
     (req: Request, res: Response, next: NextFunction) => {
       if (req.body.data) {
         req.body = UserValidation.updateUserZodSchema.parse(
@@ -28,7 +28,12 @@ router
   .post(
     validateRequest(UserValidation.createUserZodSchema),
     UserController.createUser
-  );
+  )
+  .delete(auth(), UserController.deleteUserFromDB);
+
+router.get("/connected-account", auth(USER_ROLES.INFLUENCER), UserController.createConnectedAccount);
+
+router.get("/refferal-info", auth(), UserController.getRefferalStatistics);
 
 router.route('/upload-file').post(fileUploadHandler(), UserController.uploadFile);
 export const UserRoutes = router;

@@ -1,0 +1,18 @@
+import { Model, Types } from "mongoose"
+
+export type IDiscount = {
+    user_discount: number,
+}
+
+
+export type DiscountModel =Model<IDiscount>
+
+export type IHoldDiscount = {
+    hold_discount: number,
+    refferal_code: string,
+    owner: Types.ObjectId,
+    influencer: Types.ObjectId,
+    status?: 'active' | 'used'
+}
+
+export type HoldDiscountModel = Model<IHoldDiscount>

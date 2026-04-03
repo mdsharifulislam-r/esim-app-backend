@@ -11,22 +11,23 @@ import requestIp from 'request-ip';
 import { handleChunkUpload } from './helpers/handleChunkUpload';
 import { fileStreamHandler } from './helpers/fileStreamingHelper';
 import { handleStripeWebhook } from './webhooks/handleStripeWebhook';
+import { handleAiraloWebhook } from './webhooks/handleAiraloWebhook';
 const app = express();
-// app.get("/stripe/webhook",express.raw({type:"application/json"}),handleStripeWebhook); /// stripe webhook
+app.post("/api/stripe/webhook",express.raw({type:"application/json"}),handleStripeWebhook); /// stripe webhook
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 1000,
-    standardHeaders: true,
-    legacyHeaders: false,
-    keyGenerator: (req, res) => {
-        if (!req.clientIp) {
-            throw new ApiError(StatusCodes.BAD_REQUEST, 'Unable to determine client IP!');
-        }
-        return req.clientIp;
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req, res) => {
+    if (!req.clientIp) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Unable to determine client IP!');
+    }
+    return req.clientIp;
     },
     handler: (req, res, next, options) => {
         throw new ApiError(options?.statusCode, `Rate limit exceeded. Try again in ${options.windowMs / 60000} minutes.`);
-    }
+      }
 });
 
 app.use(session({
@@ -45,7 +46,7 @@ app.use(Morgan.errorHandler);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.post('/api/airalo/webhook',handleAiraloWebhook);
 //file retrieve
 app.use("/files/:folder/:file",fileStreamHandler);
 // app.use(express.static('uploads'));

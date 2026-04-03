@@ -18,6 +18,8 @@ const updateUserZodSchema = z.object({
   image: z.string().optional(),
 });
 
+
+
 export const UserValidation = {
   createUserZodSchema,
   updateUserZodSchema,

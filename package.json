@@ -10,7 +10,7 @@
     "prettier:check": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "prettier:fix": "prettier --write .",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "stripe": "stripe listen --forward-to http://10.10.7.6:5009/api/stripe/webhook",
+    "stripe": "stripe listen --forward-to http://10.10.7.9:5000/api/stripe/webhook",
     "docker-app": "docker-compose -f docker-compose.app.yaml up --build",
     "docker-infra": "docker-compose -f docker-compose.infra.yaml up --build -d",
     "create-module": "ts-node ./src/gm.ts",
@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.19.1",
-    "axios": "^1.13.2",
+    "axios": "^1.13.6",
     "bcrypt": "^5.1.1",
     "colors": "^1.4.0",
     "cors": "^2.8.5",

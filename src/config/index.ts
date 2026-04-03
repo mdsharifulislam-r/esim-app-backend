@@ -38,5 +38,13 @@ export default {
   },
   elasticSearch: {
     url: process.env.ELASTICSEARCH_URL
+  },
+  airalo:{
+    url: process.env.AIRALO_URL,
+    clientId: process.env.AIRALO_CLIENT_ID,
+    clientSecret: process.env.AIRALO_CLIENT_SECRET
+  },
+  urls:{
+    airalo_webhook: process.env.AIRALO_WEBHOOK_URL
   }
 };
