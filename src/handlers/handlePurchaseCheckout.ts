@@ -19,8 +19,12 @@ export const handlePurchaseCheckout =async (data:Stripe.Checkout.Session) => {
         if(payload.coupon){
             const getCopoun = await Coupon.findOne({custom_code:payload.coupon})
             await CouponUser.create([{user:payload.description,coupon:getCopoun?._id,coupon_str:payload.coupon}],{session:mongoSession});
-            await HoldDiscount.findOneAndUpdate({refferal_code:payload.coupon},{status:"used"}, {upsert: true, new: true,session:mongoSession});
-            if(payload.commission){
+            const discount = await HoldDiscount.findOne({refferal_code:payload.coupon,status:"active"})
+            if(discount){
+                await HoldDiscount.findOneAndUpdate({refferal_code:payload.coupon,status:"active",owner:payload.description},{status:"used"}, {upsert: true, new: true,session:mongoSession}); 
+            }
+            else{
+                        if(payload.commission){
                 const user = await User.findOne({refferal_code:payload.coupon}).select("+stripeAccountInfo")
                 if(user?.stripeAccountInfo?.loginUrl && user?.stripeAccountInfo?.accountId){
                     await stripe.transfers.create({
@@ -57,7 +61,9 @@ export const handlePurchaseCheckout =async (data:Stripe.Checkout.Session) => {
                     referenceId:refferal[0]._id.toString() as any,
                     filePath:"referral"
                  })
+            }  
             }
+  
         }
         await mongoSession.commitTransaction();
         mongoSession.endSession();

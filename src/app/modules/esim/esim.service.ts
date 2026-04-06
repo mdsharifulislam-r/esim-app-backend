@@ -66,11 +66,11 @@ const makeOrderForPackage =async (payload:IMakeOrderRequest,user:JwtPayload) => 
         couponCode = coupon.coupon_code!
         data.commission = coupon.commission!
     };
-
-    const discount = await HoldDiscount.findOne({owner:user.id,status:"used"})
-
+    
+    const discount = await HoldDiscount.findOne({owner:user.id,status:"active"})
+    
     if(discount){
-        const coupon = await stripe.coupons.create({percent_off:discount.hold_discount,name:`${discount.refferal_code} hold discount`,duration:"once"});
+        const coupon = await stripe.coupons.create({percent_off:discount.hold_discount,name:`Your refferal discount`,duration:"once"});
         couponCode = coupon.id
         data.coupon = discount.refferal_code
     }

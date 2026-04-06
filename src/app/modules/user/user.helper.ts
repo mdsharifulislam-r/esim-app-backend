@@ -18,16 +18,17 @@ const useRfferalCodeOfUser = async (userId: string, refferalCode: string) => {
     }
 
     const [refferalUser, currentUser] = await Promise.all([
-      User.findOne({ refferal_code: refferalCode }).select(
-        '+stripeAccountInfo',
-      ).session(mongoSession),
+      User.findOne({ refferal_code: refferalCode })
+        .select('+stripeAccountInfo')
+        .session(mongoSession),
       User.findOne({ _id: userId }).session(mongoSession),
     ]);
     if (!refferalUser) {
       throw new ApiError(404, 'Refferal user not found');
     }
 
-    const discountAmount = (await Discount.findOne().session(mongoSession))?.user_discount || 0;
+    const discountAmount =
+      (await Discount.findOne().session(mongoSession))?.user_discount || 0;
 
     await Promise.all([
       Refferal.create(
@@ -58,6 +59,17 @@ const useRfferalCodeOfUser = async (userId: string, refferalCode: string) => {
             refferal_code: refferalCode,
             owner: userId,
             influencer: refferalUser._id,
+          },
+        ],
+        { session: mongoSession },
+      ),
+      HoldDiscount.create(
+        [
+          {
+            hold_discount: discountAmount,
+            refferal_code: refferalCode,
+            owner: refferalUser._id,
+            influencer: userId,
           },
         ],
         { session: mongoSession },
