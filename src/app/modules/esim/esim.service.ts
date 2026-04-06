@@ -10,6 +10,7 @@ import { StatusCodes } from "http-status-codes";
 import stripe from "../../../config/stripe";
 import { Coupon, CouponUser } from "../coupon/coupon.model";
 import { subregions } from "../../../helpers/countryHelper";
+import { HoldDiscount } from "../admin/admin.model";
 
 const getPackagesOfEsim =async (payload:IGetPackagesRequest) => {
 
@@ -65,6 +66,14 @@ const makeOrderForPackage =async (payload:IMakeOrderRequest,user:JwtPayload) => 
         couponCode = coupon.coupon_code!
         data.commission = coupon.commission!
     };
+
+    const discount = await HoldDiscount.findOne({owner:user.id,status:"used"})
+
+    if(discount){
+        const coupon = await stripe.coupons.create({percent_off:discount.hold_discount,name:`${discount.refferal_code} hold discount`,duration:"once"});
+        couponCode = coupon.id
+        data.coupon = discount.refferal_code
+    }
 
 
 

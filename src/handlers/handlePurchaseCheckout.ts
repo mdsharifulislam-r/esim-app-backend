@@ -5,6 +5,7 @@ import { Coupon, CouponUser } from "../app/modules/coupon/coupon.model";
 import { Refferal, User, Wallet } from "../app/modules/user/user.model";
 import stripe from "../config/stripe";
 import { sendNotifications, sendNotificationsAdmin } from "../helpers/notificationHelper";
+import { HoldDiscount } from "../app/modules/admin/admin.model";
 
 
 export const handlePurchaseCheckout =async (data:Stripe.Checkout.Session) => {
@@ -17,7 +18,8 @@ export const handlePurchaseCheckout =async (data:Stripe.Checkout.Session) => {
         await airaloHelper.makeOrderAsync(payload);
         if(payload.coupon){
             const getCopoun = await Coupon.findOne({custom_code:payload.coupon})
-            await CouponUser.create({user:payload.description,coupon:getCopoun?._id,coupon_str:payload.coupon});
+            await CouponUser.create([{user:payload.description,coupon:getCopoun?._id,coupon_str:payload.coupon}],{session:mongoSession});
+            await HoldDiscount.findOneAndUpdate({refferal_code:payload.coupon},{status:"used"}, {upsert: true, new: true,session:mongoSession});
             if(payload.commission){
                 const user = await User.findOne({refferal_code:payload.coupon}).select("+stripeAccountInfo")
                 if(user?.stripeAccountInfo?.loginUrl && user?.stripeAccountInfo?.accountId){

@@ -33,6 +33,11 @@ const holdDiscountSchema = new Schema<IHoldDiscount, HoldDiscountModel>({
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true,
+    },
+    status: {
+        type: String,
+        enum: ['active', 'used'],
+        default: 'active'
     }
 },{
     timestamps: true
