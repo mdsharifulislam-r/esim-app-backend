@@ -1,41 +1,124 @@
 import { ICreateAccount, IResetPassword } from '../types/emailTamplate';
 
+const PRIMARY = "#009A54";
+const LOGO =
+  "https://res.cloudinary.com/dkbcx9amc/image/upload/q_auto/f_auto/v1775448661/Layer_1_vggb5q.png";
+
+const baseTemplate = (content: string) => `
+<body style="margin:0;padding:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f4f6f8;padding:20px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellspacing="0" cellpadding="0" border="0"
+          style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+          
+          <!-- Header -->
+          <tr>
+            <td align="center" style="padding:30px 20px;border-bottom:1px solid #eee;">
+              <img src="${LOGO}" alt="LinkFast eSIM" style="height:40px;" />
+            </td>
+          </tr>
+
+          <!-- Content -->
+          <tr>
+            <td style="padding:30px 25px;">
+              ${content}
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align="center"
+              style="padding:20px;color:#999;font-size:12px;border-top:1px solid #eee;">
+              © ${new Date().getFullYear()} LinkFast eSIM. All rights reserved.
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+`;
+
+const otpBox = (otp: string) => `
+<div style="
+  background:${PRIMARY};
+  color:#fff;
+  font-size:28px;
+  letter-spacing:4px;
+  padding:14px 24px;
+  border-radius:8px;
+  display:inline-block;
+  margin:20px 0;
+  font-weight:bold;
+">
+${otp}
+</div>
+`;
+
 const createAccount = (values: ICreateAccount) => {
-  const data = {
-    to: values.email,
-    subject: 'Verify your account',
-    html: `<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 50px; padding: 20px; color: #555;">
-    <div style="width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-        <img src="https://i.postimg.cc/6pgNvKhD/logo.png" alt="Logo" style="display: block; margin: 0 auto 20px; width:150px" />
-          <h2 style="color: #277E16; font-size: 24px; margin-bottom: 20px;">Hey! ${values.name}, Your Toothlens Account Credentials</h2>
-        <div style="text-align: center;">
-            <p style="color: #555; font-size: 16px; line-height: 1.5; margin-bottom: 20px;">Your single use code is:</p>
-            <div style="background-color: #277E16; width: 80px; padding: 10px; text-align: center; border-radius: 8px; color: #fff; font-size: 25px; letter-spacing: 2px; margin: 20px auto;">${values.otp}</div>
-            <p style="color: #555; font-size: 16px; line-height: 1.5; margin-bottom: 20px;">This code is valid for 3 minutes.</p>
-        </div>
+  const content = `
+    <h2 style="margin:0 0 10px;color:#111;">
+      Verify your LinkFast eSIM account
+    </h2>
+
+    <p style="color:#555;font-size:15px;line-height:1.6;">
+      Hi ${values.name},
+      <br/><br/>
+      Welcome to <b>LinkFast eSIM</b>. Use the verification code below to activate your account.
+    </p>
+
+    <div style="text-align:center;">
+      ${otpBox(String(values.otp))}
     </div>
-</body>`,
+
+    <p style="color:#666;font-size:14px;">
+      This code is valid for <b>3 minutes</b>.
+    </p>
+
+    <p style="color:#999;font-size:13px;margin-top:20px;">
+      If you didn’t request this email, you can safely ignore it.
+    </p>
+  `;
+
+  return {
+    to: values.email,
+    subject: "Verify your LinkFast eSIM account",
+    html: baseTemplate(content),
   };
-  return data;
 };
 
 const resetPassword = (values: IResetPassword) => {
-  const data = {
-    to: values.email,
-    subject: 'Reset your password',
-    html: `<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 50px; padding: 20px; color: #555;">
-    <div style="width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-        <img src="https://i.postimg.cc/6pgNvKhD/logo.png" alt="Logo" style="display: block; margin: 0 auto 20px; width:150px" />
-        <div style="text-align: center;">
-            <p style="color: #555; font-size: 16px; line-height: 1.5; margin-bottom: 20px;">Your single use code is:</p>
-            <div style="background-color: #277E16; width: 80px; padding: 10px; text-align: center; border-radius: 8px; color: #fff; font-size: 25px; letter-spacing: 2px; margin: 20px auto;">${values.otp}</div>
-            <p style="color: #555; font-size: 16px; line-height: 1.5; margin-bottom: 20px;">This code is valid for 3 minutes.</p>
-                <p style="color: #b9b4b4; font-size: 16px; line-height: 1.5; margin-bottom: 20px;text-align:left">If you didn't request this code, you can safely ignore this email. Someone else might have typed your email address by mistake.</p>
-        </div>
+  const content = `
+    <h2 style="margin:0 0 10px;color:#111;">
+      Reset your password
+    </h2>
+
+    <p style="color:#555;font-size:15px;line-height:1.6;">
+      We received a request to reset your LinkFast eSIM password.
+      Use the code below to continue.
+    </p>
+
+    <div style="text-align:center;">
+      ${otpBox(String(values.otp))}
     </div>
-</body>`,
+
+    <p style="color:#666;font-size:14px;">
+      This code is valid for <b>3 minutes</b>.
+    </p>
+
+    <p style="color:#999;font-size:13px;margin-top:20px;">
+      If you didn't request this password reset, you can safely ignore this email.
+      Someone else may have entered your email address by mistake.
+    </p>
+  `;
+
+  return {
+    to: values.email,
+    subject: "Reset your LinkFast eSIM password",
+    html: baseTemplate(content),
   };
-  return data;
 };
 
 export const emailTemplate = {
