@@ -11,10 +11,18 @@ import stripe from "../../../config/stripe";
 import { Coupon, CouponUser } from "../coupon/coupon.model";
 import { subregions } from "../../../helpers/countryHelper";
 import { HoldDiscount } from "../admin/admin.model";
+import { EmptyCountry } from "../country/country.model";
 
 const getPackagesOfEsim =async (payload:IGetPackagesRequest) => {
 
     const data = await airaloHelper.getPackages(payload);
+    if(data.data?.length==0 && payload.country){
+        const country = await EmptyCountry.findOne({code:payload.country});
+        if(!country){
+        await EmptyCountry.create({name:payload.country,code:payload.country});
+        await RedisHelper.keyDelete("country-based-on:*")
+        }
+    }
     const formatedData = EsimHelper.formatCountryPackagesToCard(data.data);
     return {
         data:formatedData,
