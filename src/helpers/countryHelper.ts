@@ -1,13 +1,19 @@
 import { RedisHelper } from "../tools/redis/redis.helper";
 
 const getCountrysRegions = async () => {
-    const cache = await RedisHelper.redisGet('countrys-regions');
-    if (cache) return cache;
-    const response = await fetch('https://restcountries.com/v3.1/all?fields=region');
-    const data = await response.json();
-    const countrysRegions = [...new Set(data.map((country: any) => country.region))]
+    // const cache = await RedisHelper.redisGet('countrys-regions');
+    // if (cache) return cache;
+    const countrysRegions:string[] = [
+      "Africa",
+      "Europe",
+      "Asia",
+      "Middle East",
+      "Oceania",
+      "North America",
+      "South America",
+    ]
  
-    await RedisHelper.redisSet('countrys-regions', { countrysRegions, subregions }, {}, 60 * 60 * 24);
+    // await RedisHelper.redisSet('countrys-regions', { countrysRegions, subregions }, {}, 60 * 60 * 24);
     return { countrysRegions, subregions };
 }
 
@@ -65,7 +71,10 @@ export const subregions = [
 const getCountryBasedOnRegion = async (region: string) => {
     const cache = await RedisHelper.redisGet(`country-based-on-${region}`);
     if (cache) return cache;
-    const response = await fetch(`https://restcountries.com/v3.1/region/${region}?fields=name,flags,cca2,latlng`);
+
+    if(region=="Middle East") region="Western Asia";
+
+    const response =["North America","South America","Western Asia"].includes(region) ? await fetch(`https://restcountries.com/v3.1/subregion/${region}?fields=name,flags,cca2,latlng,capital`) : await fetch(`https://restcountries.com/v3.1/region/${region}?fields=name,flags,cca2,latlng`);
     const data = await response.json();
     const formatData = data.map((country: any) => ({ name: country.name.common, flag: country.flags.png, cca2: country.cca2, latlng: country.latlng }));
     await RedisHelper.redisSet(`country-based-on-${region}`, formatData, {}, 60 * 60 * 24);
