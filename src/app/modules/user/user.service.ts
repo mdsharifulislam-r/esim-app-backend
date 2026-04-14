@@ -12,6 +12,7 @@ import { AuthHelper } from '../auth/auth.helper';
 import { Response } from 'express';
 import stripe from '../../../config/stripe';
 import { Types } from 'mongoose';
+import QueryBuilder from '../../builder/QueryBuilder';
 
 const createUserToDB = async (payload: Partial<IUser>,res:Response) => {
   const isExist = await User.findOne({ email: payload.email });
@@ -209,6 +210,22 @@ const getRefferalStatistics = async (user: JwtPayload) => {
   }
 }
 
+const getALlUsersFromDB = async (query:Record<string,any>) => {
+  const userQuery = new QueryBuilder(User.find({verified:true,role:USER_ROLES.USER}),query).paginate().sort().search(['name','email'])
+  const [users,pagination] = await Promise.all([userQuery.modelQuery.exec(),userQuery.getPaginationInfo()]);
+  return {data:users,pagination}
+};
+
+const lockUnlockUserById = async (id:string) => {
+  const user = await User.findById(id);
+  if(!user){
+    throw new ApiError(StatusCodes.NOT_FOUND, "User not found!");
+  }
+  const updateDoc = await User.findOneAndUpdate({ _id: id }, { $set: { status: user.status === 'active' ? 'delete' : 'active' } }, { new: true });
+  return updateDoc;
+
+}
+
 
 export const UserService = {
   createUserToDB,
@@ -216,5 +233,7 @@ export const UserService = {
   updateProfileToDB,
   deleteUserFromDB,
   createConnectedAccount,
-  getRefferalStatistics
+  getRefferalStatistics,
+  getALlUsersFromDB,
+  lockUnlockUserById
 };

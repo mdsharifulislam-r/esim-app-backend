@@ -7,9 +7,6 @@ const createCouponZodSchema = z.object({
         }),
         discount: z.number({
             required_error: "Discount is required",
-        }).optional(),
-        expiry: z.string({
-            required_error: "Expiry is required",
         }),
         custom_code: z.string(),
         max_use: z.number(),
@@ -21,7 +18,6 @@ const createCouponZodSchema = z.object({
             const date = new Date(v);
             return !isNaN(date.getTime());
         }),
-        status: z.enum(["active", "paused", "inactive"]),
         amount: z.number().optional(),
         type: z.enum(["fixed", "percentage"]),
 

@@ -103,5 +103,26 @@ const getRefferalStatistics = catchAsync(async (req: Request, res: Response) => 
     data: result,
   });
 })
-export const UserController = { createUser, getUserProfile, updateProfile, uploadFile, deleteUserFromDB, createConnectedAccount, getRefferalStatistics };
+
+const getALlUsersFromDB = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.getALlUsersFromDB(req.query);
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: 'Users fetched successfully',
+    data: result.data,
+    pagination: result.pagination
+  });
+})
+
+const lockUnlockUserById = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.lockUnlockUserById(req.params.id);
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: 'User locked/unlocked successfully',
+    data: result,
+  });
+})
+export const UserController = { createUser, getUserProfile, updateProfile, uploadFile, deleteUserFromDB, createConnectedAccount, getRefferalStatistics, getALlUsersFromDB, lockUnlockUserById };
 

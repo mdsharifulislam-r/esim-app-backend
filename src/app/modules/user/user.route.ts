@@ -29,7 +29,10 @@ router
     validateRequest(UserValidation.createUserZodSchema),
     UserController.createUser
   )
-  .delete(auth(), UserController.deleteUserFromDB);
+  .delete(auth(), UserController.deleteUserFromDB)
+  .get(auth(USER_ROLES.ADMIN,USER_ROLES.SUPER_ADMIN), UserController.getALlUsersFromDB);
+
+router.patch("/lock/:id", auth(USER_ROLES.ADMIN,USER_ROLES.SUPER_ADMIN), UserController.lockUnlockUserById);
 
 router.get("/connected-account", auth(USER_ROLES.INFLUENCER), UserController.createConnectedAccount);
 

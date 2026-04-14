@@ -96,6 +96,11 @@ const esimSchema = new mongoose.Schema<IEsim,IEsimModel>({
     },
     oparator_info:{
         type: Object,
+    },
+    system_commission: {
+        type: Number,
+        required: false,
+        default: 0
     }
 
 }, { timestamps: true });

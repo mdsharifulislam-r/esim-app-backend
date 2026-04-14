@@ -1,6 +1,7 @@
 import { USER_ROLES } from "../../../enums/user";
 import { emailHelper } from "../../../helpers/emailHelper";
 import QueryBuilder from "../../builder/QueryBuilder";
+import { Esim } from "../esim/esim.model";
 import { IUser } from "../user/user.interface";
 import { User } from "../user/user.model";
 import { Discount } from "./admin.model";
@@ -24,13 +25,19 @@ const createInfluencer =async (payload:Partial<IUser>) => {
 
 
 const getAllInfluencer =async (query:Record<string,any>) => {
-    const InfluencerQuery = new QueryBuilder(User.find({role:USER_ROLES.INFLUENCER}),query).paginate().sort()
+    const InfluencerQuery = new QueryBuilder(User.find({role:USER_ROLES.INFLUENCER,verified:true}),query).paginate().sort().search(['name','email'])
     const [Influencer,pagination] = await Promise.all([InfluencerQuery.modelQuery.exec(),InfluencerQuery.getPaginationInfo()]);
     return {data:Influencer,pagination}
 }
 
 const updateInfluencer =async (id:string,payload:Partial<IUser>) => {
+    
     const Influencer = await User.findOneAndUpdate({_id:id},payload,{new:true})
+    return Influencer
+}
+
+const deleteInfluencer =async (id:string) => {
+    const Influencer = await User.findOneAndUpdate({_id:id},{status:'delete',verified:false},{new:true})
     return Influencer
 }
 
@@ -56,12 +63,29 @@ const getDiscountForUser = async () => {
 }
 
 
+const getSystemStatistic = async () => {
+    const [totalUsers,totalInfuencer] = await Promise.all([User.countDocuments({role:USER_ROLES.USER}),User.countDocuments({role:USER_ROLES.INFLUENCER})])
+    const totalRavinue = await Esim.aggregate([
+        {
+            $group: {
+                _id: null,
+                total: { $sum: "$net_price" }
+            }
+        }
+    ])
+
+    const totalOrders = await Esim.countDocuments()
+    return {totalUsers,totalInfuencer,totalRavinue:Number(totalRavinue[0]?.total?.toFixed(2) || 0),totalOrders}
+}
+
 
 export const AdminServices = {
     createInfluencer,
     getAllInfluencer,
     updateInfluencer,
     setDiscountForUser,
-    getDiscountForUser
+    getDiscountForUser,
+    deleteInfluencer,
+    getSystemStatistic
 };
 

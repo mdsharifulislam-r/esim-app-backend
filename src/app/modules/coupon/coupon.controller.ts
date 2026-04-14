@@ -7,6 +7,7 @@ import { StatusCodes } from "http-status-codes";
 
 const createCoupon = catchAsync(async (req: Request, res: Response) => {
     const { ...couponData } = req.body;
+    couponData.expiry = couponData.end_date
     const result = await CouponService.createCouponIntoDB(couponData);
     sendResponse(res, {
         statusCode: StatusCodes.OK,

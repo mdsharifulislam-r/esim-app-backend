@@ -21,7 +21,7 @@ const createSupportMessage = async (data: ISupport) => {
 const getSupportMessages = async (query:Record<string,any>) => {
   const cache = await RedisHelper.redisGet(`support`, query);
   if (cache) return cache;
-  const supportQuery = new QueryBuilder(Support.find({}),query).paginate().sort().filter()
+  const supportQuery = new QueryBuilder(Support.find({}),query).paginate().sort().filter().search(['subject','message','email','name'])
   const [support,pagination] = await Promise.all([supportQuery.modelQuery.exec(),supportQuery.getPaginationInfo()]);
   await RedisHelper.redisSet(`support`, {data:support,pagination}, query, 60);
   return {data:support,pagination}

@@ -12,9 +12,10 @@ router.route("/influencer")
     .post(auth(USER_ROLES.ADMIN,USER_ROLES.SUPER_ADMIN),fileUploadHandler(),validateRequest(AdminValidations.createInfluencerZodSchema),AdminController.createInfluencer)
     .get(auth(USER_ROLES.ADMIN,USER_ROLES.SUPER_ADMIN),AdminController.getAllInfluencer)
 router.route("/influencer/:id")
-    .patch(auth(USER_ROLES.ADMIN,USER_ROLES.SUPER_ADMIN),validateRequest(AdminValidations.updateInfluencerZodSchema),AdminController.updateInfluencer)
+    .patch(auth(USER_ROLES.ADMIN,USER_ROLES.SUPER_ADMIN),fileUploadHandler(),validateRequest(AdminValidations.updateInfluencerZodSchema),AdminController.updateInfluencer)
+    .delete(auth(USER_ROLES.ADMIN,USER_ROLES.SUPER_ADMIN),AdminController.deleteInfluencer)
 router.route("/discount")
     .post(auth(USER_ROLES.ADMIN,USER_ROLES.SUPER_ADMIN),validateRequest(AdminValidations.setDiscountForUserZodSchema),AdminController.setDiscountForUser)
     .get(auth(USER_ROLES.ADMIN,USER_ROLES.SUPER_ADMIN),AdminController.getDiscountForUser)
-
+router.get("/statistics",auth(USER_ROLES.ADMIN,USER_ROLES.SUPER_ADMIN),AdminController.getSystemStatistic)
 export const AdminRoutes = router;

@@ -38,6 +38,7 @@ export interface IEsim {
   price:number,
   startDate:Date,
   endDate?:Date,
+  system_commission?:number,
   net_price?:number,
   manual_installation:string,
   qr_installation:string,

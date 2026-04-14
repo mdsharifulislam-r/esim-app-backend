@@ -10,6 +10,7 @@ import { BlogRoutes } from '../app/modules/blog/blog.route';
 import { CouponRoutes } from '../app/modules/coupon/coupon.route';
 import { ReviewRoutes } from '../app/modules/review/review.route';
 import { SupportRoutes } from '../app/modules/support/support.route';
+import { NotificationRoutes } from '../app/modules/notification/notification.routes';
 const router = express.Router();
 
 export const apiRoutes: { path: string; route: any }[] = [
@@ -52,6 +53,10 @@ export const apiRoutes: { path: string; route: any }[] = [
   {
     path:"/support",
     route:SupportRoutes
+  },
+  {
+    path: '/notification',
+    route: NotificationRoutes,
   },
   { path: '/admin', route: AdminRoutes },
 ];

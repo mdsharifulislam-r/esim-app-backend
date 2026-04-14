@@ -29,6 +29,8 @@ const getAllInfluencer = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateInfluencer = catchAsync(async (req: Request, res: Response) => {
+    const image = getSingleFilePath(req.files, 'image');
+    req.body.image = image
     const result = await AdminServices.updateInfluencer(req.params.id,req.body);
     sendResponse(res, {
         success: true,
@@ -61,10 +63,32 @@ const getDiscountForUser = catchAsync(async (req: Request, res: Response) => {
 });
 
 
+const deleteInfluencer = catchAsync(async (req: Request, res: Response) => {
+    const result = await AdminServices.deleteInfluencer(req.params.id);
+    sendResponse(res, {
+        success: true,
+        statusCode: 200,
+        message: 'Influencer deleted successfully',
+        data: result
+    })
+});
+
+const getSystemStatistic = catchAsync(async (req: Request, res: Response) => {
+    const result = await AdminServices.getSystemStatistic();
+    sendResponse(res, {
+        success: true,
+        statusCode: 200,
+        message: 'System statistic fetched successfully',
+        data: result
+    })
+});
+
 export const AdminController = {
     createInfluencer,
     getAllInfluencer,
     updateInfluencer,
     setDiscountForUser,
-    getDiscountForUser
+    getDiscountForUser,
+    deleteInfluencer,
+    getSystemStatistic
 };
