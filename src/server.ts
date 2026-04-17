@@ -33,6 +33,8 @@ if (cluster.isPrimary) {
 // Main function - only runs in worker processes
 export async function main() {
     try {
+        console.log(config.database_url);
+        
         // Connect to database
         await mongoose.connect(config.database_url as string);
         logger.info(colors.green('🚀 Database connected successfully'));
