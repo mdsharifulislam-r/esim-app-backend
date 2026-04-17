@@ -33,7 +33,9 @@ if (cluster.isPrimary) {
 // Main function - only runs in worker processes
 export async function main() {
     try {
-        console.log(config.database_url);
+        console.log(config.database_url,{
+            serverSelectionTimeoutMS: 30000
+        });
         
         // Connect to database
         await mongoose.connect(config.database_url as string);
