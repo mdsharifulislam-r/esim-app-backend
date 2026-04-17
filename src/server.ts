@@ -33,12 +33,12 @@ if (cluster.isPrimary) {
 // Main function - only runs in worker processes
 export async function main() {
     try {
-        console.log(config.database_url,{
-            serverSelectionTimeoutMS: 30000
-        });
+
         
         // Connect to database
-        await mongoose.connect(config.database_url as string);
+        await mongoose.connect(config.database_url as string,{
+            serverSelectionTimeoutMS: 30000
+        });
         logger.info(colors.green('🚀 Database connected successfully'));
 
         // Seed super admin
