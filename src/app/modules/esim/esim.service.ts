@@ -122,7 +122,11 @@ const makeOrderForPackage = async (payload: IMakeOrderRequest, user: JwtPayload)
     if (!cartData.length) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Cart is empty!");
     }
-
+    for (let item in payload) {
+        if (item != "coupon") {
+            delete payload[item as keyof IMakeOrderRequest]
+        }
+    }
     let data = {
         ...payload,
         description: user.id,
