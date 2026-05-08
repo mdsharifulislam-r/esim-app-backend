@@ -5,21 +5,27 @@ import mongoose from 'mongoose';
 import { RedisHelper } from '../tools/redis/redis.helper';
 import { sendNotifications, sendNotificationsAdmin } from '../helpers/notificationHelper';
 import { EsimPackage } from '../types/packagesType';
+import { Cart } from '../app/modules/cart/cart.model';
 
 export const handleAiraloWebhook = async (req: Request, res: Response) => {
-    const mongoSession = await mongoose.startSession();
+  const mongoSession = await mongoose.startSession();
   try {
     mongoSession.startTransaction();
     const { data }: { data: AiraloOrderResponse } = req.body;
-    
-    const orderInfo = await RedisHelper.redisGet(`esim-order:${data.description}:${data.package_id}`);
-    const rawData:EsimPackage = await RedisHelper.redisGet(`esim-data:${data.description}:${data.package_id}`);
-    if (!orderInfo) {
-        throw new Error('Order not found');
+    const cartItem = await Cart.findOne({ user: data.description, "esim.packageId": data.package_id });
+    if (!cartItem) {
+      throw new Error("Cart item not found");
     }
+    const orderInfo = {
+      description: cartItem.user,
+      country: cartItem.esim.countryName,
+      supported_countries: cartItem.esim.supported_countries
+    }
+    const rawData = cartItem.esim;
 
-    await Esim.findOneAndUpdate({ user:data.description,status:"active" }, { status: "archived" }, { session: mongoSession });
-    
+
+    await Esim.findOneAndUpdate({ user: data.description, status: "active" }, { status: "archived" }, { session: mongoSession });
+
     const esim = await Esim.create([{
       package_name: data.package,
       code: data.code,
@@ -41,30 +47,29 @@ export const handleAiraloWebhook = async (req: Request, res: Response) => {
       id: data.id,
       country: orderInfo.country,
       supported_countries: orderInfo.supported_countries,
-      oparator_info:{
-        country_code:rawData.countryName,
-        name:rawData.operatorName,
-        image:rawData.operatorImage
+      oparator_info: {
+        country_code: rawData.countryName,
+        name: rawData.operatorName,
+        image: rawData.operatorImage
       }
     }], { session: mongoSession });
     sendNotifications({
       receiver: [orderInfo.description],
-      title: 'Esim Order',
-      message: `Esim Order for ${data.package} has been placed`,
+      title: 'You successfully purchased an eSIM',
+      message: `Your eSIM for ${data.package} has been successfully purchased.`,
       isRead: false,
-      filePath:"booking",
+      filePath: "booking",
       referenceId: esim[0]._id
     })
     sendNotificationsAdmin({
       receiver: [],
-      title: 'Esim Order',
-      message: `A new esim order for ${data.package} has been placed`,
+      title: 'New eSIM Order',
+      message: `A new eSIM order for ${data.package} has been placed`,
       isRead: false,
-      filePath:"booking",
+      filePath: "booking",
       referenceId: esim[0]._id
     })
-    await RedisHelper.keyDelete(`esim-order:${data.description}:${data.package_id}:*`);
-    await RedisHelper.keyDelete(`esim-order:${data.description}:*`);
+    await Cart.deleteOne({ _id: cartItem._id }, { session: mongoSession })
     await mongoSession.commitTransaction();
     mongoSession.endSession();
     return res.status(200).json({ esim });

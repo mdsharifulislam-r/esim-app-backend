@@ -3,6 +3,7 @@ import stripe from "../config/stripe";
 import config from "../config";
 import { handlePurchaseCheckout } from "../handlers/handlePurchaseCheckout";
 import { handleAccountUpdatedEvent } from "../handlers/handleAccountUpdatedEvent";
+import { handleCartPurchase } from "../handlers/handleCartPurchase";
 
 export const handleStripeWebhook = async (req: Request, res: Response) => {
     try {
@@ -12,7 +13,7 @@ export const handleStripeWebhook = async (req: Request, res: Response) => {
         switch (event.type) {
             case 'checkout.session.completed':
                 const session = event.data.object;
-                await handlePurchaseCheckout(session);
+                await handleCartPurchase(session);
                 break;
             case 'account.updated':
                 const account = event.data.object;
@@ -23,6 +24,6 @@ export const handleStripeWebhook = async (req: Request, res: Response) => {
         }
     } catch (error) {
         console.log(error);
-        
+
     }
 }

@@ -12,138 +12,200 @@ import { Coupon, CouponUser } from "../coupon/coupon.model";
 import { subregions } from "../../../helpers/countryHelper";
 import { HoldDiscount } from "../admin/admin.model";
 import { EmptyCountry } from "../country/country.model";
+import { Cart } from "../cart/cart.model";
 
-const getPackagesOfEsim =async (payload:IGetPackagesRequest) => {
+const getPackagesOfEsim = async (payload: IGetPackagesRequest) => {
 
     const data = await airaloHelper.getPackages(payload);
-    if(data.data?.length==0 && payload.country){
-        const country = await EmptyCountry.findOne({code:payload.country});
-        if(!country){
-        await EmptyCountry.create({name:payload.country,code:payload.country});
-        await RedisHelper.keyDelete("country-based-on:*")
+    if (data.data?.length == 0 && payload.country) {
+        const country = await EmptyCountry.findOne({ code: payload.country });
+        if (!country) {
+            await EmptyCountry.create({ name: payload.country, code: payload.country });
+            await RedisHelper.keyDelete("country-based-on:*")
         }
     }
-    const formatedData = EsimHelper.formatCountryPackagesToCard(data.data);
+    const formatedData = EsimHelper.formatCountryPackagesToCard(data.data, data.pricing?.discount_percentage);
     return {
-        data:formatedData,
-        pagination:{
-            page:data.meta.current_page!,
-            limit:Number(data.meta.per_page!),
-            total:data.meta.total * Number(data.meta.per_page!),
-            totalPage:Math.ceil((data.meta.total!*Number(data.meta.per_page!)) / Number(data.meta.per_page!))
+        data: formatedData,
+        pagination: {
+            page: data.meta.current_page!,
+            limit: Number(data.meta.per_page!),
+            total: data.meta.total * Number(data.meta.per_page!),
+            totalPage: Math.ceil((data.meta.total! * Number(data.meta.per_page!)) / Number(data.meta.per_page!))
         }
     }
 }
 
-const getRegionalEsim =async (region:string,page:number=1,limit:number=10) => {
-    
+const getRegionalEsim = async (region: string, page: number = 1, limit: number = 10) => {
+
     const regionInfo = subregions.find((re) => re.slugname == region);
-    if(!regionInfo) throw new ApiError(StatusCodes.BAD_REQUEST, "Region not found!");
+    if (!regionInfo) throw new ApiError(StatusCodes.BAD_REQUEST, "Region not found!");
     const data = await airaloHelper.getPackages({
-        type:"global",
-        page:page,
-        limit:limit
+        type: "global",
+        page: page,
+        limit: limit
     });
 
-    
-    const formatedData = EsimHelper.formatCountryPackagesToCard(data.data);
+
+    const formatedData = EsimHelper.formatCountryPackagesToCard(data.data, data.pricing?.discount_percentage);
     const filteredData = formatedData.filter((item) => {
         return regionInfo.tags.some((tag) => item.countryName.includes(tag) || item.slug.includes(tag) || item.packageId.includes(tag));
     });
     return {
-        data:filteredData,
+        data: filteredData,
     }
 }
 
-const makeOrderForPackage =async (payload:IMakeOrderRequest,user:JwtPayload) => {
-    await RedisHelper.redisSet(`esim-data:${user.id}:${payload.package_id}`, payload.rawData, {}, 60 * 60 * 24);
-    await RedisHelper.redisSet(`esim-order:${user.id}:${payload.package_id}`, payload, {}, 60 * 60 * 24);
-    delete payload.country
-    delete payload.supported_countries
-    delete payload.rawData
-    let data = {
-        ...payload,
-        description:user.id,
-        quantity:1,
-        commission:0
+// const makeOrderForPackage =async (payload:IMakeOrderRequest,user:JwtPayload) => {
+//     await RedisHelper.redisSet(`esim-data:${user.id}:${payload.package_id}`, payload.rawData, {}, 60 * 60 * 24);
+//     await RedisHelper.redisSet(`esim-order:${user.id}:${payload.package_id}`, payload, {}, 60 * 60 * 24);
+//     delete payload.country
+//     delete payload.supported_countries
+//     delete payload.rawData
+//     let data = {
+//         ...payload,
+//         description:user.id,
+//         quantity:1,
+//         commission:0
+//     }
+
+//     let couponCode = ''
+//     if(payload.coupon){
+//         const coupon = await CouponUser.isExistCouponUser(user.id,payload.coupon||"",payload?.net_price||0)
+//         couponCode = coupon.coupon_code!
+//         data.commission = coupon.commission!
+//     };
+
+//     const discount = await HoldDiscount.findOne({owner:user.id,status:"active"})
+
+//     if(discount){
+//         const coupon = await stripe.coupons.create({percent_off:discount.hold_discount,name:`Your refferal discount`,duration:"once"});
+//         couponCode = coupon.id
+//         data.coupon = discount.refferal_code
+//     }
+
+
+
+//     const line_items = [
+//         {
+//             price_data: {
+//                 currency: 'usd',
+//                 product_data: {
+//                     name: payload.package_id,
+//                 },
+//                 unit_amount: (payload?.net_price||0) * 100,
+//             },
+//             quantity: 1,
+//         },
+//     ];
+//     const session = await stripe.checkout.sessions.create({
+//         line_items:line_items,
+//         mode: 'payment',
+//         success_url: `http://localhost:3000/esim/success?session_id={CHECKOUT_SESSION_ID}`,
+//         cancel_url: `http://localhost:3000/esim/cancel`,
+//         metadata:{
+//             data:JSON.stringify(data)
+//         },
+//         ...((couponCode) && {discounts:[{coupon:couponCode}]}),
+//         customer_email: user.email
+//     })
+
+//     return (session).url
+
+// }
+
+const makeOrderForPackage = async (payload: IMakeOrderRequest, user: JwtPayload) => {
+
+    const cartData = await Cart.find({ user: user.id });
+    const totalPrice = cartData.reduce((acc, item) => acc + (item.esim.priceUSD * item.quantity), 0);
+
+    if (!cartData.length) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Cart is empty!");
     }
 
+    let data = {
+        ...payload,
+        description: user.id,
+        commission: 0
+    }
     let couponCode = ''
-    if(payload.coupon){
-        const coupon = await CouponUser.isExistCouponUser(user.id,payload.coupon||"",payload?.net_price||0)
+    if (payload.coupon) {
+        const coupon = await CouponUser.isExistCouponUser(user.id, payload.coupon || "", totalPrice)
         couponCode = coupon.coupon_code!
         data.commission = coupon.commission!
     };
-    
-    const discount = await HoldDiscount.findOne({owner:user.id,status:"active"})
-    
-    if(discount){
-        const coupon = await stripe.coupons.create({percent_off:discount.hold_discount,name:`Your refferal discount`,duration:"once"});
+
+    const discount = await HoldDiscount.findOne({ owner: user.id, status: "active" })
+
+    if (discount) {
+        const coupon = await stripe.coupons.create({ percent_off: discount.hold_discount, name: `Your refferal discount`, duration: "once" });
         couponCode = coupon.id
         data.coupon = discount.refferal_code
     }
 
 
 
-    const line_items = [
-        {
+    const line_items = cartData.map((item) => {
+        return {
             price_data: {
                 currency: 'usd',
                 product_data: {
-                    name: payload.package_id,
+                    name: item.esim.packageId,
+                    images: [item.esim.operatorImage],
+                    description: item.esim.short_info || item.esim.fair_usage_policy || item.esim.packageId || '',
                 },
-                unit_amount: (payload?.net_price||0) * 100,
+                unit_amount: Math.round((item.esim.priceUSD || 0) * 100),
             },
-            quantity: 1,
-        },
-    ];
+            quantity: item.quantity,
+        };
+    });
     const session = await stripe.checkout.sessions.create({
-        line_items:line_items,
+        line_items: line_items,
         mode: 'payment',
         success_url: `http://localhost:3000/esim/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `http://localhost:3000/esim/cancel`,
-        metadata:{
-            data:JSON.stringify(data)
+        metadata: {
+            data: JSON.stringify(data)
         },
-        ...((couponCode) && {discounts:[{coupon:couponCode}]}),
+        ...((couponCode) && { discounts: [{ coupon: couponCode }] }),
         customer_email: user.email
     })
 
     return (session).url
-    
+
 }
 
-const getUserAllEsimOrder =async (user:JwtPayload,query:Record<string,any>) => {
+const getUserAllEsimOrder = async (user: JwtPayload, query: Record<string, any>) => {
     const cache = await RedisHelper.redisGet(`esim-order:${user.id}`, query);
     if (cache) return cache;
-    let initQuery = {user:user.id,} as Record<string,any>
+    let initQuery = { user: user.id, } as Record<string, any>
 
-    if(query.status){
-        if(query.status=="archived"){
-            initQuery = {...initQuery, status:{$ne:"active"}}
+    if (query.status) {
+        if (query.status == "archived") {
+            initQuery = { ...initQuery, status: { $ne: "active" } }
         }
-        if(query.status=="active"){
-            initQuery = {...initQuery, status:"active"}
+        if (query.status == "active") {
+            initQuery = { ...initQuery, status: "active" }
         }
     }
 
-    const orders = new QueryBuilder(Esim.find(initQuery),query).paginate().sort()
+    const orders = new QueryBuilder(Esim.find(initQuery), query).paginate().sort()
 
-    const [data,pagination] = await Promise.all([orders.modelQuery.exec(),orders.getPaginationInfo()]);
+    const [data, pagination] = await Promise.all([orders.modelQuery.exec(), orders.getPaginationInfo()]);
 
-    await RedisHelper.redisSet(`esim-order:${user.id}`, {data,pagination}, query, 60 * 60 * 24);
-    return {data,pagination}
-    
+    await RedisHelper.redisSet(`esim-order:${user.id}`, { data, pagination }, query, 60 * 60 * 24);
+    return { data, pagination }
+
 }
 
-const getSingleOrderDetails =async (orderId:string) => {
+const getSingleOrderDetails = async (orderId: string) => {
     const cache = await RedisHelper.redisGet(`esim-order:${orderId}`);
     if (cache) return cache;
     const order = await Esim.findById(orderId);
-    if(!order){
+    if (!order) {
         throw new ApiError(StatusCodes.NOT_FOUND, "Order not found!");
     }
-    const [realTimeUses,guidelines] = await Promise.all([
+    const [realTimeUses, guidelines] = await Promise.all([
         airaloHelper.getEsimUsage(order.sims[0].iccid),
         airaloHelper.getEsimInstallationGuidelines(order.sims[0].iccid)
     ])
@@ -156,7 +218,7 @@ const getSingleOrderDetails =async (orderId:string) => {
     return data
 }
 
-const getEsimInstallationGuidelines =async (ccid:string) => {
+const getEsimInstallationGuidelines = async (ccid: string) => {
     return await airaloHelper.getEsimInstallationGuidelines(ccid);
 }
 export const EsimServices = {

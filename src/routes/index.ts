@@ -1,3 +1,4 @@
+import { CartRoutes } from '../app/modules/cart/cart.route';
 import { AdminRoutes } from '../app/modules/admin/admin.route';
 import express from 'express';
 import { AuthRoutes } from '../app/modules/auth/auth.route';
@@ -59,7 +60,9 @@ export const apiRoutes: { path: string; route: any }[] = [
     route: NotificationRoutes,
   },
   { path: '/admin', route: AdminRoutes },
+  { path: '/cart', route: CartRoutes },
 ];
+
 
 
 

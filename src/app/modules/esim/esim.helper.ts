@@ -1,6 +1,6 @@
 import { Country } from '../../../types/packagesType';
 
-interface PackageCard {
+export interface PackageCard {
   packageId: string;
   operatorName: string;
   type: string;
@@ -25,22 +25,14 @@ interface PackageCard {
   fair_usage_policy: string | null;
 }
 
-function formatCountryPackagesToCard(countrys: Country[]): PackageCard[] {
+function formatCountryPackagesToCard(countrys: Country[], discountPercentage: number = 0): PackageCard[] {
   const cards: PackageCard[] = [];
 
   const mapCards = countrys
     ?.map((country: Country) => {
       country.operators.forEach(operator => {
         operator.packages.forEach(pkg => {
-          const discount =
-            pkg.prices.recommended_retail_price.USD > pkg.prices.net_price.USD
-              ? Math.round(
-                  ((pkg.prices.recommended_retail_price.USD -
-                    pkg.prices.net_price.USD) /
-                    pkg.prices.recommended_retail_price.USD) *
-                    100,
-                )
-              : 0;
+          const discount = discountPercentage
 
           cards.push({
             packageId: pkg.id,
@@ -53,7 +45,7 @@ function formatCountryPackagesToCard(countrys: Country[]): PackageCard[] {
             duration: `${pkg.day} Day${pkg.day > 1 ? 's' : ''}`,
             priceUSD: pkg.prices.net_price.USD,
             originalPriceUSD: pkg.prices.recommended_retail_price.USD,
-            discountPercentage: discount > 0 ? discount : undefined,
+            discountPercentage: discount > 0 ? discount : 0,
             qr_installation: pkg.qr_installation,
             planType: operator.plan_type,
             info: operator.info,
