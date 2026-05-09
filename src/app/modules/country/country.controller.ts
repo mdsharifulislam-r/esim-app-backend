@@ -14,8 +14,8 @@ const getRegionsList = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getCountryBasedOnRegion = catchAsync(async (req: Request, res: Response) => {
-    const { region } = req.query;
-    const result = await CountryServices.getCountryBasedOnRegion(region as string);
+    const { region, countryName } = req.query;
+    const result = await CountryServices.getCountryBasedOnRegion(region as string, countryName as string);
     sendResponse(res, {
         success: true,
         statusCode: 200,
@@ -24,7 +24,22 @@ const getCountryBasedOnRegion = catchAsync(async (req: Request, res: Response) =
     })
 });
 
+
+const searchCountries = catchAsync(
+    async (req: Request, res: Response) => {
+        const { countryName } = req.query;
+        const result = await CountryServices.searchCountries(countryName as string);
+        sendResponse(res, {
+            success: true,
+            statusCode: 200,
+            message: 'Country list fetched successfully',
+            data: result
+        })
+    }
+)
+
 export const CountryController = {
     getRegionsList,
-    getCountryBasedOnRegion
+    getCountryBasedOnRegion,
+    searchCountries
 };
