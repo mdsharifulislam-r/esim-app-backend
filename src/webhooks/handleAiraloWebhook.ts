@@ -70,6 +70,7 @@ export const handleAiraloWebhook = async (req: Request, res: Response) => {
       referenceId: esim[0]._id
     })
     await Cart.deleteOne({ _id: cartItem._id }, { session: mongoSession })
+    await RedisHelper.keyDelete(`esim-order:${cartItem.user}:*`)
     await mongoSession.commitTransaction();
     mongoSession.endSession();
     return res.status(200).json({ esim });
