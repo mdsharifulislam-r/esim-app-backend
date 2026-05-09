@@ -24,7 +24,7 @@ export const handleAiraloWebhook = async (req: Request, res: Response) => {
     const rawData = cartItem.esim;
 
 
-    await Esim.findOneAndUpdate({ user: data.description, status: "active" }, { status: "archived" }, { session: mongoSession });
+    // await Esim.findOneAndUpdate({ user: data.description, status: "active" }, { status: "archived" }, { session: mongoSession });
 
     const esim = await Esim.create([{
       package_name: data.package,
