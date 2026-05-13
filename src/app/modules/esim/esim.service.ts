@@ -24,7 +24,12 @@ const getPackagesOfEsim = async (payload: IGetPackagesRequest) => {
             await RedisHelper.keyDelete("country-based-on:*")
         }
     }
-    const formatedData = EsimHelper.formatCountryPackagesToCard(data.data, data.pricing?.discount_percentage);
+    let formatedData = EsimHelper.formatCountryPackagesToCard(data.data, data.pricing?.discount_percentage);
+
+    if (formatedData?.length) {
+        formatedData = formatedData.sort((a, b) => a.priceUSD - b.priceUSD)
+    }
+
     return {
         data: formatedData,
         pagination: {
@@ -47,7 +52,10 @@ const getRegionalEsim = async (region: string, page: number = 1, limit: number =
     });
 
 
-    const formatedData = EsimHelper.formatCountryPackagesToCard(data.data, data.pricing?.discount_percentage);
+    let formatedData = EsimHelper.formatCountryPackagesToCard(data.data, data.pricing?.discount_percentage);
+    if (formatedData?.length) {
+        formatedData = formatedData.sort((a, b) => a.priceUSD - b.priceUSD)
+    }
     const filteredData = formatedData.filter((item) => {
         return regionInfo.tags.some((tag) => item.countryName.includes(tag) || item.slug.includes(tag) || item.packageId.includes(tag));
     });
