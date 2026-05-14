@@ -58,7 +58,7 @@ const getSingleOrderDetails = catchAsync(async (req: Request, res: Response) => 
 })
 
 const getRegionalEsimPackages = catchAsync(async (req: Request, res: Response) => {
-    const result = await EsimServices.getRegionalEsim(req.params.id,req.query?.page as any,req.query?.limit as any); ;
+    const result = await EsimServices.getRegionalEsim(req.params.id, req.query?.page as any, req.query?.limit as any, req.query?.sort_order as any);
     sendResponse(res, {
         success: true,
         statusCode: 200,

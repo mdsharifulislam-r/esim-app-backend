@@ -65,6 +65,31 @@ function formatCountryPackagesToCard(countrys: Country[], discountPercentage: nu
 }
 
 
+const sortPackages = (packages: PackageCard[], sort_order?: "price_low_to_high" | "price_high_to_low" | "validity_less_to_more" | "validity_more_to_less") => {
+  if (sort_order == "price_low_to_high") {
+    return packages.sort((a, b) => a.priceUSD - b.priceUSD)
+  }
+  if (sort_order == "price_high_to_low") {
+    return packages.sort((a, b) => b.priceUSD - a.priceUSD)
+  }
+
+  if (sort_order == "validity_less_to_more") {
+    return packages.sort((a, b) => {
+      const aDay = Number(a.duration.split(" ")[0])
+      const bDay = Number(b.duration.split(" ")[0])
+      return aDay - bDay
+    })
+  }
+
+  if (sort_order == "validity_more_to_less") {
+    return packages.sort((a, b) => {
+      const aDay = Number(a.duration.split(" ")[0])
+      const bDay = Number(b.duration.split(" ")[0])
+      return bDay - aDay
+    })
+  }
+  return packages
+}
 
 
 
@@ -72,4 +97,6 @@ function formatCountryPackagesToCard(countrys: Country[], discountPercentage: nu
 
 
 
-export const EsimHelper = { formatCountryPackagesToCard };
+
+
+export const EsimHelper = { formatCountryPackagesToCard, sortPackages };
