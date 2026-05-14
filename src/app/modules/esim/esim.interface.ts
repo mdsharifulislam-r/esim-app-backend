@@ -7,6 +7,7 @@ export interface IGetPackagesRequest {
   country?: string;
   page?: number;
   limit?: number;
+  sort_order?: "price_low_to_high" | "price_high_to_low" | "validity_less_to_more" | "validity_more_to_less"
 }
 
 
@@ -14,12 +15,12 @@ export interface IMakeOrderRequest {
   package_id: string;
   type: string;
   quantity: number;
-  description:string,
+  description: string,
   country?: string;
   supported_countries?: object[],
-  coupon?:string,
-  net_price?:number,
-  rawData?:EsimPackage
+  coupon?: string,
+  net_price?: number,
+  rawData?: EsimPackage
 }
 
 export interface IEsim {
@@ -30,26 +31,26 @@ export interface IEsim {
   type: string;
   country: string;
   quantity: number;
-  user:Types.ObjectId,
-  validity:number,
-  data:string,
-  text:number|null,
-  voice:number|null,
-  price:number,
-  startDate:Date,
-  endDate?:Date,
-  system_commission?:number,
-  net_price?:number,
-  manual_installation:string,
-  qr_installation:string,
-  status:"active" | "archived" | 'expired',
-  installation_guides:string,
-  sims:Sim[],
+  user: Types.ObjectId,
+  validity: number,
+  data: string,
+  text: number | null,
+  voice: number | null,
+  price: number,
+  startDate: Date,
+  endDate?: Date,
+  system_commission?: number,
+  net_price?: number,
+  manual_installation: string,
+  qr_installation: string,
+  status: "active" | "archived" | 'expired',
+  installation_guides: string,
+  sims: Sim[],
   supported_countries?: object[],
-  oparator_info:{
-    country_code:string,
-    name:string,
-    image:{width:number,height:number,url:string}
+  oparator_info: {
+    country_code: string,
+    name: string,
+    image: { width: number, height: number, url: string }
   }
 }
 
