@@ -26,8 +26,8 @@ const getPackagesOfEsim = async (payload: IGetPackagesRequest) => {
     }
     let formatedData = EsimHelper.formatCountryPackagesToCard(data.data, data.pricing?.discount_percentage);
 
-    if (formatedData?.length) {
-        formatedData = formatedData.sort((a, b) => a.priceUSD - b.priceUSD)
+    if (formatedData?.length && payload.sort_order) {
+        formatedData = EsimHelper.sortPackages(formatedData, payload.sort_order)
     }
 
     return {
@@ -41,7 +41,7 @@ const getPackagesOfEsim = async (payload: IGetPackagesRequest) => {
     }
 }
 
-const getRegionalEsim = async (region: string, page: number = 1, limit: number = 10) => {
+const getRegionalEsim = async (region: string, page: number = 1, limit: number = 10, sort_order?: "price_low_to_high" | "price_high_to_low" | "validity_less_to_more" | "validity_more_to_less") => {
 
     const regionInfo = subregions.find((re) => re.slugname == region);
     if (!regionInfo) throw new ApiError(StatusCodes.BAD_REQUEST, "Region not found!");
@@ -53,8 +53,8 @@ const getRegionalEsim = async (region: string, page: number = 1, limit: number =
 
 
     let formatedData = EsimHelper.formatCountryPackagesToCard(data.data, data.pricing?.discount_percentage);
-    if (formatedData?.length) {
-        formatedData = formatedData.sort((a, b) => a.priceUSD - b.priceUSD)
+    if (formatedData?.length && sort_order) {
+        formatedData = EsimHelper.sortPackages(formatedData, sort_order)
     }
     const filteredData = formatedData.filter((item) => {
         return regionInfo.tags.some((tag) => item.countryName.includes(tag) || item.slug.includes(tag) || item.packageId.includes(tag));
