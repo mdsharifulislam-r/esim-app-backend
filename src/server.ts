@@ -11,14 +11,6 @@ import cluster from 'cluster';
 import { loadConsumer } from "./tools/kafka/kafka-consumers";
 import 'dotenv/config';
 
-// import { setupSecurity } from "./app/modules/cluster/setup.security";
-
-//uncaught exception
-// process.on('uncaughtException', error => {
-//     errorLogger.error('uncaughtException Detected', error);
-//     process.exit(1);
-// });
-
 
 if (cluster.isPrimary) {
     process.on('uncaughtException', error => {
