@@ -11,7 +11,7 @@ import cluster from 'cluster';
 import { loadConsumer } from "./tools/kafka/kafka-consumers";
 import 'dotenv/config';
 
-
+// wewe
 if (cluster.isPrimary) {
     process.on('uncaughtException', error => {
         errorLogger.error('Master uncaughtException Detected', error);
