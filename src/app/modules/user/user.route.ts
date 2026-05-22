@@ -12,7 +12,7 @@ router
   .get(auth(), UserController.getUserProfile)
   .patch(
     auth(),
-    fileUploadHandler([{name:'cover',type:['image/jpeg'],maxCount:1}]),
+    fileUploadHandler([{ name: 'cover', type: ['image/jpeg'], maxCount: 1 }]),
     (req: Request, res: Response, next: NextFunction) => {
       if (req.body.data) {
         req.body = UserValidation.updateUserZodSchema.parse(
@@ -30,13 +30,14 @@ router
     UserController.createUser
   )
   .delete(auth(), UserController.deleteUserFromDB)
-  .get(auth(USER_ROLES.ADMIN,USER_ROLES.SUPER_ADMIN), UserController.getALlUsersFromDB);
+  .get(auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), UserController.getALlUsersFromDB);
 
-router.patch("/lock/:id", auth(USER_ROLES.ADMIN,USER_ROLES.SUPER_ADMIN), UserController.lockUnlockUserById);
+router.patch("/lock/:id", auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), UserController.lockUnlockUserById);
 
 router.get("/connected-account", auth(USER_ROLES.INFLUENCER), UserController.createConnectedAccount);
 
 router.get("/refferal-info", auth(), UserController.getRefferalStatistics);
+router.get("/refferal-to-phone", UserController.refferalToPhone);
 
 router.route('/upload-file').post(fileUploadHandler(), UserController.uploadFile);
 export const UserRoutes = router;
