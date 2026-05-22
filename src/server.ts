@@ -11,7 +11,6 @@ import cluster from 'cluster';
 import { loadConsumer } from "./tools/kafka/kafka-consumers";
 import 'dotenv/config';
 
-
 // import { setupSecurity } from "./app/modules/cluster/setup.security";
 
 //uncaught exception
