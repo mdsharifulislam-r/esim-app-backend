@@ -13,6 +13,8 @@ import { Response } from 'express';
 import stripe from '../../../config/stripe';
 import { Types } from 'mongoose';
 import QueryBuilder from '../../builder/QueryBuilder';
+import config from '../../../config';
+
 
 const createUserToDB = async (payload: Partial<IUser>,res:Response) => {
   const isExist = await User.findOne({ email: payload.email });
@@ -150,8 +152,8 @@ const createConnectedAccount = async (user: JwtPayload) => {
 
   const accountLink = await stripe.accountLinks.create({
     account: account.id,
-    refresh_url: 'https://yourplatform.com/refresh',
-    return_url: 'https://yourplatform.com/return',
+    refresh_url: `${config.urls.frontend_url}`,
+    return_url: `${config.urls.frontend_url}/invite-earn`,
     type: 'account_onboarding',
   });
 

@@ -13,6 +13,7 @@ import { subregions } from "../../../helpers/countryHelper";
 import { HoldDiscount } from "../admin/admin.model";
 import { EmptyCountry } from "../country/country.model";
 import { Cart } from "../cart/cart.model";
+import config from "../../../config";
 
 const getPackagesOfEsim = async (payload: IGetPackagesRequest) => {
 
@@ -174,8 +175,8 @@ const makeOrderForPackage = async (payload: IMakeOrderRequest, user: JwtPayload)
     const session = await stripe.checkout.sessions.create({
         line_items: line_items,
         mode: 'payment',
-        success_url: `http://localhost:3000/esim/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `http://localhost:3000/esim/cancel`,
+        success_url: `${config.urls.frontend_url}/my-eSIMs`,
+        cancel_url: `${config.urls.frontend_url}/cart`,
         metadata: {
             data: JSON.stringify(data)
         },

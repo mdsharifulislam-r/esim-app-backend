@@ -45,6 +45,7 @@ export default {
     clientSecret: process.env.AIRALO_CLIENT_SECRET
   },
   urls:{
-    airalo_webhook: process.env.AIRALO_WEBHOOK_URL
+    airalo_webhook: process.env.AIRALO_WEBHOOK_URL,
+    frontend_url: process.env.FRONTEND_URL
   }
 };
