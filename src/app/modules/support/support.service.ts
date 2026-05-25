@@ -12,6 +12,7 @@ const createSupportMessage = async (data: ISupport) => {
     to: config.super_admin.email!,
     subject: data.subject,
     html: data.message,
+    is_support: true
   });
   await RedisHelper.keyDelete(`support:*`);
   return support;
@@ -39,7 +40,8 @@ const replySupportMessage = async (id:string,message:string) => {
     emailHelper.sendEmail({
         to: support.email,
         subject: `Re: ${support.subject}`,
-        html: message
+        html: message,
+        is_support: true
     })
     await RedisHelper.keyDelete(`support:*`);
     return result

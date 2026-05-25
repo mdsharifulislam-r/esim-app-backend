@@ -47,5 +47,8 @@ export default {
   urls:{
     airalo_webhook: process.env.AIRALO_WEBHOOK_URL,
     frontend_url: process.env.FRONTEND_URL
+  },
+  resend:{
+    api_key: process.env.RESEND_API_KEY
   }
 };
