@@ -37,4 +37,9 @@ router.post(
   AuthController.changePassword
 );
 
+router.post(
+  '/guest-login',
+  AuthController.guestLoginToDB
+);
+
 export const AuthRoutes = router;

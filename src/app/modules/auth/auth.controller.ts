@@ -71,10 +71,22 @@ const changePassword = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const guestLoginToDB = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.guestLoginToDB();
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: 'Guest logged in successfully.',
+    data: result,
+  });
+});
+
 export const AuthController = {
   verifyEmail,
   loginUser,
   forgetPassword,
   resetPassword,
   changePassword,
+  guestLoginToDB,
 };

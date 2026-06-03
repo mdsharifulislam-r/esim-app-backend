@@ -19,6 +19,7 @@ import { User } from '../user/user.model';
 import { Response } from 'express';
 import { AuthHelper } from './auth.helper';
 import { UserHelper } from '../user/user.helper';
+import { USER_ROLES } from '../../../enums/user';
 
 //login
 const loginUserFromDB = async (payload: ILoginData, res: Response) => {
@@ -262,10 +263,32 @@ const changePasswordToDB = async (
   await User.findOneAndUpdate({ _id: user.id }, updateData, { new: true });
 };
 
+const guestLoginToDB = async () => {
+  let guestEmail = `guest${Math.floor(Math.random() * 10000)}@linkfastesim.com`;
+  const isExistUser = await User.isExistUserByEmail(guestEmail);
+  if (isExistUser) {
+    guestEmail = `guest${Math.floor(Math.random() * 10000)}@linkfastesim.com`;
+  }
+  const createUser = await User.create({
+    email: guestEmail,
+    password: cryptoToken(),
+    role: USER_ROLES.GUEST,
+    verified: true,
+    name: `Guest${Math.floor(Math.random() * 10000)}`,
+  });
+  const createToken = jwtHelper.createToken(
+    { id: createUser._id, role: createUser.role, email: createUser.email },
+    config.jwt.jwt_secret as Secret,
+    config.jwt.jwt_expire_in as string,
+  );
+  return {accessToken: createToken, role: createUser.role };
+};
+
 export const AuthService = {
   verifyEmailToDB,
   loginUserFromDB,
   forgetPasswordToDB,
   resetPasswordToDB,
   changePasswordToDB,
+  guestLoginToDB,
 };

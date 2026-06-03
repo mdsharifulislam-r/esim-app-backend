@@ -35,7 +35,7 @@ const redisHget = async (key: string, query: Record<string, any>) => {
 
 const keyDelete = async (pattern: string) => {
   const keys = await redisClient.scanStream({ match: pattern }).toArray();
-  
+  console.log('Keys to delete:', keys);
   if (!keys?.flat().length) return;
 
   // Use pipeline for efficient deletion

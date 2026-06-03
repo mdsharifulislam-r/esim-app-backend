@@ -1,3 +1,4 @@
+import { BannerRoutes } from '../app/modules/banner/banner.route';
 import { CartRoutes } from '../app/modules/cart/cart.route';
 import { AdminRoutes } from '../app/modules/admin/admin.route';
 import express from 'express';
@@ -61,7 +62,9 @@ export const apiRoutes: { path: string; route: any }[] = [
   },
   { path: '/admin', route: AdminRoutes },
   { path: '/cart', route: CartRoutes },
+  { path: '/banner', route: BannerRoutes },
 ];
+
 
 
 
