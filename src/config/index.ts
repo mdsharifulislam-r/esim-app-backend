@@ -50,5 +50,8 @@ export default {
   },
   resend:{
     api_key: process.env.RESEND_API_KEY
+  },
+  rest_country:{
+    api_key: process.env.REST_COUNTRIES_API_KEY
   }
 };
