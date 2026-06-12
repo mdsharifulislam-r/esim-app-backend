@@ -114,6 +114,7 @@ const getAllCountries = async (): Promise<{
   if (cache) return cache;
   const response = await fetch(`https://restcountries.com/v3.1/all?fields=name,flags,cca2,latlng`);
   const data = await response.json();
+  console.log(data);
   const formatData = data?.map((country: any) => ({
     name: country.name.common,
     flag: country.flags.png,
