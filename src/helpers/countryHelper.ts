@@ -1,3 +1,4 @@
+import { CountryResponse } from '../app/modules/country/country.interface';
 import config from '../config';
 import { RedisHelper } from '../tools/redis/redis.helper';
 
@@ -89,27 +90,28 @@ const getCountryBasedOnRegion = async (region: string) => {
     region,
   )
     ? await fetch(
-        `${baseUrl}/subregion/${region}?fields=name,flags,cca2,latlng,capital`,
+        `${baseUrl}/subregion/${region}`,
         {
           headers: {
             Authorization: `Bearer ${config.rest_country.api_key}`,
           },
         },
       )
-    : await fetch(`${baseUrl}/region/${region}?fields=name,flags,cca2,latlng`, {
+    : await fetch(`${baseUrl}/region/${region}`, {
         headers: {
           Authorization: `Bearer ${config.rest_country.api_key}`,
         },
       });
 
-  const data = await response.json();
-  console.log(data);
-  const formatData = data
-    ?.map((country: any) => ({
-      name: country.name.common,
-      flag: country.flags.png,
-      cca2: country.cca2,
-      latlng: country.latlng,
+  const data:CountryResponse = await response.json();
+
+  
+  const formatData = data?.data?.objects
+    ?.map((country) => ({
+      name: country?.names?.common,
+      flag: country?.flag?.url_png,
+      cca2: country?.codes?.alpha_3,
+      latlng: [country?.coordinates?.lng, country?.coordinates?.lat],
     }))
     ?.sort((a: any, b: any) => a?.name?.localeCompare(b.name));
 
@@ -133,19 +135,19 @@ const getAllCountries = async (): Promise<
 > => {
   const cache = await RedisHelper.redisGet('all-countries');
   if (cache) return cache;
-  const response = await fetch(`${baseUrl}/all?fields=name,flags,cca2,latlng`, {
+  const response = await fetch(`https://api.restcountries.com/countries/v5`, {
     headers: {
-      Authorization: `Bearer ${config.rest_country.api_key}`,
+      authorization: `Bearer ${config.rest_country.api_key}`,
     },
   });
-  const data = await response.json();
-  console.log(data);
-  const formatData = data
-    ?.map((country: any) => ({
-      name: country.name.common,
-      flag: country.flags.png,
-      cca2: country.cca2,
-      latlng: country.latlng,
+  const data:CountryResponse = await response.json();
+
+  const formatData = data?.data?.objects
+    ?.map((country) => ({
+      name: country?.names?.common,
+      flag: country?.flag?.url_png,
+      cca2: country?.codes?.alpha_3,
+      latlng:[country?.coordinates?.lng, country?.coordinates?.lat],
     }))
     ?.sort((a: any, b: any) => a?.name?.localeCompare(b?.name));
   await RedisHelper.redisSet('all-countries', formatData, {}, 60 * 60 * 24);
