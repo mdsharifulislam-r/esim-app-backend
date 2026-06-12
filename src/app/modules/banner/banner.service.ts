@@ -14,6 +14,7 @@ const createBanner = async (text:string) => {
 const getAllBanners = async (user:JwtPayload) =>{
     const cache = await RedisHelper.redisGet(`banners`, {role:user?.role});
     if (cache) {
+        console.log('from cache');
         return cache;
     }
     if([USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN].includes(user?.role)){

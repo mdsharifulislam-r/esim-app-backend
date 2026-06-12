@@ -114,12 +114,12 @@ const getAllCountries = async (): Promise<{
   if (cache) return cache;
   const response = await fetch(`https://restcountries.com/v3.1/all?fields=name,flags,cca2,latlng`);
   const data = await response.json();
-  const formatData = data.map((country: any) => ({
+  const formatData = data?.map((country: any) => ({
     name: country.name.common,
     flag: country.flags.png,
     cca2: country.cca2,
     latlng: country.latlng
-  })).sort((a: any, b: any) => a.name.localeCompare(b.name));
+  }))?.sort((a: any, b: any) => a?.name?.localeCompare(b?.name));
   await RedisHelper.redisSet('all-countries', formatData, {}, 60 * 60 * 24);
   return formatData;
 }

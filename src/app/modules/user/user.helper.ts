@@ -4,6 +4,7 @@ import ApiError from '../../../errors/ApiError';
 import { sendNotifications } from '../../../helpers/notificationHelper';
 import { Discount, HoldDiscount } from '../admin/admin.model';
 import { Refferal, User } from './user.model';
+import stripe from '../../../config/stripe';
 
 const useRfferalCodeOfUser = async (userId: string, refferalCode: string) => {
   const mongoSession = await mongoose.startSession();
@@ -31,7 +32,18 @@ const useRfferalCodeOfUser = async (userId: string, refferalCode: string) => {
       (await Discount.findOne().session(mongoSession))?.user_discount || 0;
 
     await Promise.all([
-      Refferal.create(
+      refferalUser.role === USER_ROLES.INFLUENCER?
+        Refferal.create(
+          [
+            {
+              refferal_user: userId,
+              refferal_by: refferalUser._id,
+              amount: refferalUser.commission,
+              refferal_code: refferalCode,
+            },
+          ],
+          { session: mongoSession },
+        ):(      Refferal.create(
         [
           {
             refferal_user: userId,
@@ -41,7 +53,7 @@ const useRfferalCodeOfUser = async (userId: string, refferalCode: string) => {
           },
         ],
         { session: mongoSession },
-      ),
+      )),
       sendNotifications(
         {
           title: 'Refferal Bonus',
@@ -63,17 +75,6 @@ const useRfferalCodeOfUser = async (userId: string, refferalCode: string) => {
         ],
         { session: mongoSession },
       ),
-      HoldDiscount.create(
-        [
-          {
-            hold_discount: discountAmount,
-            refferal_code: refferalCode,
-            owner: refferalUser._id,
-            influencer: userId,
-          },
-        ],
-        { session: mongoSession },
-      ),
       sendNotifications(
         {
           title: 'Refferal Bonus',
@@ -85,6 +86,28 @@ const useRfferalCodeOfUser = async (userId: string, refferalCode: string) => {
         mongoSession,
       ),
     ]);
+
+    try {
+      refferalUser.role === USER_ROLES.INFLUENCER
+        ? stripe.transfers.create({
+            amount: Math.round((refferalUser.commission || 0) * 100),
+            currency: 'usd',
+            destination: refferalUser.stripeAccountInfo?.accountId!,
+          })
+        : HoldDiscount.create(
+            [
+              {
+                hold_discount: discountAmount,
+                refferal_code: refferalCode,
+                owner: refferalUser._id,
+                influencer: userId,
+              },
+            ],
+            { session: mongoSession },
+          );
+    } catch (error) {
+      console.log(error);
+    }
 
     await mongoSession.commitTransaction();
     mongoSession.endSession();
