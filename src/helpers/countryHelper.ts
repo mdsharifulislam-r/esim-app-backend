@@ -110,7 +110,7 @@ const getCountryBasedOnRegion = async (region: string) => {
     ?.map((country) => ({
       name: country?.names?.common,
       flag: country?.flag?.url_png,
-      cca2: country?.codes?.alpha_3,
+      cca2: country?.codes?.alpha_2,
       latlng: [country?.coordinates?.lng, country?.coordinates?.lat],
     }))
     ?.sort((a: any, b: any) => a?.name?.localeCompare(b.name));
@@ -146,7 +146,7 @@ const getAllCountries = async (): Promise<
     ?.map((country) => ({
       name: country?.names?.common,
       flag: country?.flag?.url_png,
-      cca2: country?.codes?.alpha_3,
+      cca2: country?.codes?.alpha_2,
       latlng:[country?.coordinates?.lng, country?.coordinates?.lat],
     }))
     ?.sort((a: any, b: any) => a?.name?.localeCompare(b?.name));
