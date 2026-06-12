@@ -84,15 +84,15 @@ const getCountryBasedOnRegion = async (region: string) => {
       );
 
   const data = await response.json();
-
+  console.log(data);
   const formatData = data
-    .map((country: any) => ({
+    ?.map((country: any) => ({
       name: country.name.common,
       flag: country.flags.png,
       cca2: country.cca2,
       latlng: country.latlng
     }))
-    .sort((a: any, b: any) => a.name.localeCompare(b.name));
+    ?.sort((a: any, b: any) => a?.name?.localeCompare(b.name));
 
   await RedisHelper.redisSet(
     `country-based-on:${region}`,
