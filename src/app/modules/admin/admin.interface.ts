@@ -1,4 +1,5 @@
 import { Model, Types } from "mongoose"
+import { USER_ROLES } from "../../../enums/user"
 
 export type IDiscount = {
     user_discount: number,
@@ -16,3 +17,14 @@ export type IHoldDiscount = {
 }
 
 export type HoldDiscountModel = Model<IHoldDiscount>
+
+
+export type IAdmin = {
+  name: string,
+  email: string,
+  image: string,
+  role: USER_ROLES,
+  password: string
+};
+
+export type AdminModel = Model<IAdmin>;

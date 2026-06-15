@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { USER_ROLES } from '../../../enums/user';
 
 const createInfluencerZodSchema = z.object({
     body: z.object({
@@ -28,8 +29,18 @@ const setDiscountForUserZodSchema = z.object({
 }
 )
 
+const createAdminZodSchema = z.object({
+    body: z.object({
+        name: z.string(),
+        email: z.string(),
+        password: z.string(),
+        role: z.enum([USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]),
+    })
+})
+
 export const AdminValidations = { 
     createInfluencerZodSchema,
     updateInfluencerZodSchema,  
-    setDiscountForUserZodSchema
+    setDiscountForUserZodSchema,
+    createAdminZodSchema
  };

@@ -1,0 +1,13 @@
+echo "🔍 Running lint-staged..."
+npx lint-staged
+
+echo "🛡 Checking protected files..."
+
+changed_files=$(git diff --cached --name-only)
+
+echo "$changed_files" | grep -Eq "^\.env(\..*)?$|vite\.config\.ts|tailwind\.config\.ts"
+
+if [ $? -eq 0 ]; then
+  echo "❌ You cannot modify protected config files."
+  exit 1
+fi

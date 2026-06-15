@@ -43,3 +43,4 @@ const holdDiscountSchema = new Schema<IHoldDiscount, HoldDiscountModel>({
     timestamps: true
 })
 export const HoldDiscount = model<IHoldDiscount, HoldDiscountModel>('HoldDiscount', holdDiscountSchema)
+// sssd

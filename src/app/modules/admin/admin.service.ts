@@ -1,10 +1,13 @@
+import { StatusCodes } from "http-status-codes";
 import { USER_ROLES } from "../../../enums/user";
+import ApiError from "../../../errors/ApiError";
 import { emailHelper } from "../../../helpers/emailHelper";
 import QueryBuilder from "../../builder/QueryBuilder";
 import { Esim } from "../esim/esim.model";
 import { IUser } from "../user/user.interface";
 import { User } from "../user/user.model";
 import { Discount } from "./admin.model";
+import { IAdmin } from "./admin.interface";
 
 const createInfluencer =async (payload:Partial<IUser>) => {
     payload.role = USER_ROLES.INFLUENCER
@@ -79,6 +82,48 @@ const getSystemStatistic = async () => {
 }
 
 
+
+const createAdminIntoDB = async (payload: IAdmin) => {
+    const isExist = await User.findOne({ email: payload.email });
+    if (isExist) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Email already exist!');
+    }
+    const admin = await User.create({ ...payload, verified: true })
+    return admin;
+}
+
+
+const getAllAdminsFromDB = async (query: Record<string, any>) => {
+    const adminQuery = new QueryBuilder(User.find({ role: { $in: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN] }, status: 'active' }), query).paginate().sort().fields().search(['name', 'email'])
+
+    const [admins, pagination] = await Promise.all([
+        adminQuery.modelQuery.lean(),
+        adminQuery.getPaginationInfo(),
+    ])
+    return { admins, pagination }
+}
+
+
+const updateAdminIntoDb = async (id: string, payload: IAdmin) => {
+    const user = await User.findById(id)
+    if (!user) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!")
+    }
+    const updatedAdmin = await User.updateOne({ _id: id }, payload)
+    return updatedAdmin;
+}
+
+const deleteAdminFromDB = async (id: string) => {
+    const user = await User.findById(id)
+    if (!user) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!")
+    }
+    const deletedAdmin = await User.updateOne({ _id: id }, { $set: { status: 'delete' } })
+    return deletedAdmin;
+}
+
+
+
 export const AdminServices = {
     createInfluencer,
     getAllInfluencer,
@@ -86,6 +131,10 @@ export const AdminServices = {
     setDiscountForUser,
     getDiscountForUser,
     deleteInfluencer,
-    getSystemStatistic
+    getSystemStatistic,
+    createAdminIntoDB,
+    getAllAdminsFromDB,
+    updateAdminIntoDb,
+    deleteAdminFromDB
 };
 

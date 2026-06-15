@@ -83,6 +83,65 @@ const getSystemStatistic = catchAsync(async (req: Request, res: Response) => {
     })
 });
 
+
+
+const createAdmin = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const image = getSingleFilePath(req.files, 'image')
+        req.body.image = image
+        const result = await AdminServices.createAdminIntoDB(req.body);
+        return sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: 'Admin created successfully',
+            data: result
+        })
+    }
+)
+
+const getAllAdmins = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const result = await AdminServices.getAllAdminsFromDB(req.query);
+        return sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: 'Admins fetched successfully',
+            data: result.admins,
+            pagination: result.pagination
+        })
+    }
+)
+
+const updateAdmin = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const { id } = req.params;
+        const image = getSingleFilePath(req.files, 'image')
+        if (image) {
+            req.body.image = image
+        }
+        const result = await AdminServices.updateAdminIntoDb(id, req.body);
+        return sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: 'Admin updated successfully',
+            data: result
+        })
+    }
+)
+
+const deleteAdmin = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const { id } = req.params;
+        const result = await AdminServices.deleteAdminFromDB(id);
+        return sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: 'Admin deleted successfully',
+            data: result
+        })
+    }
+)
+
 export const AdminController = {
     createInfluencer,
     getAllInfluencer,
@@ -90,5 +149,9 @@ export const AdminController = {
     setDiscountForUser,
     getDiscountForUser,
     deleteInfluencer,
-    getSystemStatistic
+    getSystemStatistic,
+    createAdmin,
+    getAllAdmins,
+    updateAdmin,
+    deleteAdmin
 };
