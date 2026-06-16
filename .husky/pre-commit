@@ -9,7 +9,7 @@ changed_files=$(git diff --cached --name-only)
 
 echo "$changed_files"
 
-if echo "$changed_files" | grep -Eq "^\.env(\..*)?$|vite\.config\.ts|tailwind\.config\.ts"; then
+if echo "$changed_files" | grep -Eq "^\.env(\..*)?$|vite\.config\.ts|tailwind\.config\.ts|postcss\.config\.js"; then
   echo "❌ You cannot modify protected config files."
   exit 1
 fi
