@@ -16,13 +16,9 @@ const getCountryBasedOnRegion = async (region: string, countryName?: string) => 
 };
 
 const searchCountries = async (countryName: string) => {
-    const allCountries = await countryHelper.getAllCountries();
-    // search by Regex match for country name
-    const regex = new RegExp(countryName, 'i');
-    const filterCountries = allCountries.filter((country) => {
-        return regex.test(country.name)
-    })
-    return filterCountries
+    const allCountries = await countryHelper.searchCountries(countryName);
+
+    return allCountries
 };
 
 export const CountryServices = {

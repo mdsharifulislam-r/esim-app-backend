@@ -154,8 +154,38 @@ const getAllCountries = async (): Promise<
   return formatData;
 };
 
+
+const searchCountries = async (searchTerm: string): Promise<
+  {
+    name: string;
+    flag: string;
+    cca2: string;
+    latlng: number[];
+  }[]
+> => {
+  const cache = await RedisHelper.redisGet('search-countries',{searchTerm});
+  if (cache) return cache;
+  const response = await fetch(`https://api.restcountries.com/countries/v5?q=${searchTerm}&pretty=1`, {
+    headers: {
+      authorization: `Bearer ${config.rest_country.api_key}`,
+    },
+  });
+  const data:CountryResponse = await response.json();
+
+  const formatData = data?.data?.objects
+    ?.map((country) => ({
+      name: country?.names?.common,
+      flag: country?.flag?.url_png,
+      cca2: country?.codes?.alpha_2,
+      latlng:[country?.coordinates?.lng, country?.coordinates?.lat],
+    }))
+  await RedisHelper.redisSet('search-countries', formatData, {searchTerm}, 60);
+  return formatData;
+};
+
 export const countryHelper = {
   getCountrysRegions,
   getCountryBasedOnRegion,
   getAllCountries,
+  searchCountries
 };
