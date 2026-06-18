@@ -25,8 +25,9 @@ const getPackagesOfEsim = async (payload: IGetPackagesRequest) => {
             await RedisHelper.keyDelete("country-based-on:*")
         }
     }
-    let formatedData = EsimHelper.formatCountryPackagesToCard(data.data, data.pricing?.discount_percentage);
 
+    // return data.data
+    let formatedData = EsimHelper.formatCountryPackagesToCard(data.data, data.pricing?.discount_percentage);
     if (formatedData?.length && payload.sort_order) {
         formatedData = EsimHelper.sortPackages(formatedData, payload.sort_order)
     }

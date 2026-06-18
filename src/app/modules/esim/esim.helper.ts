@@ -33,7 +33,6 @@ function formatCountryPackagesToCard(countrys: Country[], discountPercentage: nu
       country.operators.forEach(operator => {
         operator.packages.forEach(pkg => {
           const discount = discountPercentage
-
           cards.push({
             packageId: pkg.id,
             operatorName: operator.title,
@@ -57,11 +56,11 @@ function formatCountryPackagesToCard(countrys: Country[], discountPercentage: nu
         });
       });
 
-      return cards;
+      return cards
     })
     .flat();
 
-  return mapCards;
+  return [...new Set(mapCards)];
 }
 
 
