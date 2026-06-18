@@ -90,14 +90,14 @@ const getCountryBasedOnRegion = async (region: string) => {
     region,
   )
     ? await fetch(
-        `${baseUrl}/subregion/${region}`,
+        `${baseUrl}/subregion/${region}?limit=100`,
         {
           headers: {
             Authorization: `Bearer ${config.rest_country.api_key}`,
           },
         },
       )
-    : await fetch(`${baseUrl}/region/${region}`, {
+    : await fetch(`${baseUrl}/region/${region}?limit=100`, {
         headers: {
           Authorization: `Bearer ${config.rest_country.api_key}`,
         },
@@ -135,7 +135,7 @@ const getAllCountries = async (): Promise<
 > => {
   const cache = await RedisHelper.redisGet('all-countries');
   if (cache) return cache;
-  const response = await fetch(`https://api.restcountries.com/countries/v5`, {
+  const response = await fetch(`https://api.restcountries.com/countries/v5?limit=100`, {
     headers: {
       authorization: `Bearer ${config.rest_country.api_key}`,
     },
