@@ -44,7 +44,7 @@ function formatCountryPackagesToCard(countrys: Country[], discountPercentage: nu
             dataAmount: pkg.data,
             duration: `${pkg.day} Day${pkg.day > 1 ? 's' : ''}`,
             priceUSD: discountPrice,
-            originalPriceUSD: pkg.prices.recommended_retail_price.USD,
+            originalPriceUSD: !discount ? 0 : pkg.prices.recommended_retail_price.USD,
             discountPercentage: discount > 0 ? discount : 0,
             qr_installation: pkg.qr_installation,
             planType: operator.plan_type,
