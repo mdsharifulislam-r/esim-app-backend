@@ -33,6 +33,7 @@ function formatCountryPackagesToCard(countrys: Country[], discountPercentage: nu
       country.operators.forEach(operator => {
         operator.packages.forEach(pkg => {
           const discount = discountPercentage
+          const discountPrice = !discount ? pkg.prices.recommended_retail_price.USD : pkg.prices.recommended_retail_price.USD - (pkg.prices.recommended_retail_price.USD * discount / 100)
           cards.push({
             packageId: pkg.id,
             operatorName: operator.title,
@@ -42,8 +43,8 @@ function formatCountryPackagesToCard(countrys: Country[], discountPercentage: nu
             operatorImage: operator.image.url,
             dataAmount: pkg.data,
             duration: `${pkg.day} Day${pkg.day > 1 ? 's' : ''}`,
-            priceUSD: pkg.prices.recommended_retail_price.USD,
-            originalPriceUSD: pkg.prices.net_price.USD,
+            priceUSD: discountPrice,
+            originalPriceUSD: pkg.prices.recommended_retail_price.USD,
             discountPercentage: discount > 0 ? discount : 0,
             qr_installation: pkg.qr_installation,
             planType: operator.plan_type,
