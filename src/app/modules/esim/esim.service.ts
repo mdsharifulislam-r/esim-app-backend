@@ -27,7 +27,7 @@ const getPackagesOfEsim = async (payload: IGetPackagesRequest) => {
     }
 
     // return data.data
-    let formatedData = EsimHelper.formatCountryPackagesToCard(data.data, data.pricing?.discount_percentage);
+    let formatedData = await EsimHelper.formatCountryPackagesToCard(data.data, data.pricing?.discount_percentage);
     if (formatedData?.length && payload.sort_order) {
         formatedData = EsimHelper.sortPackages(formatedData, payload.sort_order)
     }
@@ -54,7 +54,7 @@ const getRegionalEsim = async (region: string, page: number = 1, limit: number =
     });
 
 
-    let formatedData = EsimHelper.formatCountryPackagesToCard(data.data, data.pricing?.discount_percentage);
+    let formatedData = await EsimHelper.formatCountryPackagesToCard(data.data, data.pricing?.discount_percentage);
     if (formatedData?.length && sort_order) {
         formatedData = EsimHelper.sortPackages(formatedData, sort_order)
     }

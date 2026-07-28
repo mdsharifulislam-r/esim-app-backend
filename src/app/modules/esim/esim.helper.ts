@@ -1,4 +1,5 @@
 import { Country } from '../../../types/packagesType';
+import { Pricingrules } from '../pricingrules/pricingrules.model';
 
 export interface PackageCard {
   packageId: string;
@@ -25,15 +26,16 @@ export interface PackageCard {
   fair_usage_policy: string | null;
 }
 
-function formatCountryPackagesToCard(countrys: Country[], discountPercentage: number = 0): PackageCard[] {
+async function formatCountryPackagesToCard(countrys: Country[], discountPercentage: number = 0): Promise<PackageCard[]> {
   const cards: PackageCard[] = [];
-
+  const pricingRules = await Pricingrules.findOne()
   const mapCards = countrys
     ?.map((country: Country) => {
       country.operators.forEach(operator => {
         operator.packages.forEach(pkg => {
+          const priceWithMargin = pricingRules?.margin_price ? pkg.prices.recommended_retail_price.USD + (pkg.prices.recommended_retail_price.USD * pricingRules.margin_price / 100) : pkg.prices.recommended_retail_price.USD
           const discount = discountPercentage
-          const discountPrice = !discount ? pkg.prices.recommended_retail_price.USD : pkg.prices.recommended_retail_price.USD - (pkg.prices.recommended_retail_price.USD * discount / 100)
+          const discountPrice = !discount ? priceWithMargin : priceWithMargin - (priceWithMargin * discount / 100)
           cards.push({
             packageId: pkg.id,
             operatorName: operator.title,
@@ -44,7 +46,7 @@ function formatCountryPackagesToCard(countrys: Country[], discountPercentage: nu
             dataAmount: pkg.data,
             duration: `${pkg.day} Day${pkg.day > 1 ? 's' : ''}`,
             priceUSD: discountPrice,
-            originalPriceUSD: !discount ? 0 : pkg.prices.recommended_retail_price.USD,
+            originalPriceUSD: !discount ? priceWithMargin : priceWithMargin,
             discountPercentage: discount > 0 ? discount : 0,
             qr_installation: pkg.qr_installation,
             planType: operator.plan_type,

@@ -1,3 +1,4 @@
+import { PricingrulesRoutes } from '../app/modules/pricingrules/pricingrules.route';
 import { BannerRoutes } from '../app/modules/banner/banner.route';
 import { CartRoutes } from '../app/modules/cart/cart.route';
 import { AdminRoutes } from '../app/modules/admin/admin.route';
@@ -45,16 +46,16 @@ export const apiRoutes: { path: string; route: any }[] = [
     route: BlogRoutes,
   },
   {
-    path:"/coupon",
-    route:CouponRoutes
+    path: "/coupon",
+    route: CouponRoutes
   },
   {
-    path:"/review",
-    route:ReviewRoutes
+    path: "/review",
+    route: ReviewRoutes
   },
   {
-    path:"/support",
-    route:SupportRoutes
+    path: "/support",
+    route: SupportRoutes
   },
   {
     path: '/notification',
@@ -63,7 +64,10 @@ export const apiRoutes: { path: string; route: any }[] = [
   { path: '/admin', route: AdminRoutes },
   { path: '/cart', route: CartRoutes },
   { path: '/banner', route: BannerRoutes },
+  { path: '/pricingrules', route: PricingrulesRoutes },
 ];
+
+
 
 
 
