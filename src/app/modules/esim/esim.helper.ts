@@ -26,9 +26,9 @@ export interface PackageCard {
   fair_usage_policy: string | null;
 }
 
-async function formatCountryPackagesToCard(countrys: Country[], discountPercentage: number = 0): Promise<PackageCard[]> {
+async function formatCountryPackagesToCard(countrys: Country[], discountPercentage: number = 0, type: "local" | "region" | "global", name?: string): Promise<PackageCard[]> {
   const cards: PackageCard[] = [];
-  const pricingRules = await Pricingrules.findOne()
+  const pricingRules = await Pricingrules.findOne(type == "global" ? { type: "global" } : type == "local" ? { type: "country", cca2: name } : { type: type, name })
   const mapCards = countrys
     ?.map((country: Country) => {
       country.operators.forEach(operator => {

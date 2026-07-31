@@ -12,4 +12,8 @@ router.route("/")
     .post(auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), validateRequest(PricingrulesValidations.createPricingrulesValidation), PricingrulesController.createPricingrules)
     .get(auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), PricingrulesController.getPricingRules)
 
+router.route("/:id")
+    .patch(auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), validateRequest(PricingrulesValidations.updatePricingrulesValidation), PricingrulesController.updatePricingrules)
+    .delete(auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), PricingrulesController.deletePricingRules)
+
 export const PricingrulesRoutes = router;

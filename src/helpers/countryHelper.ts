@@ -90,22 +90,22 @@ const getCountryBasedOnRegion = async (region: string) => {
     region,
   )
     ? await fetch(
-        `${baseUrl}/subregion/${region}?limit=100`,
-        {
-          headers: {
-            Authorization: `Bearer ${config.rest_country.api_key}`,
-          },
-        },
-      )
-    : await fetch(`${baseUrl}/region/${region}?limit=100`, {
+      `${baseUrl}/subregion/${region}?limit=100`,
+      {
         headers: {
           Authorization: `Bearer ${config.rest_country.api_key}`,
         },
-      });
+      },
+    )
+    : await fetch(`${baseUrl}/region/${region}?limit=100`, {
+      headers: {
+        Authorization: `Bearer ${config.rest_country.api_key}`,
+      },
+    });
 
-  const data:CountryResponse = await response.json();
+  const data: CountryResponse = await response.json();
 
-  
+
   const formatData = data?.data?.objects
     ?.map((country) => ({
       name: country?.names?.common,
@@ -140,14 +140,14 @@ const getAllCountries = async (): Promise<
       authorization: `Bearer ${config.rest_country.api_key}`,
     },
   });
-  const data:CountryResponse = await response.json();
+  const data: CountryResponse = await response.json();
 
   const formatData = data?.data?.objects
     ?.map((country) => ({
       name: country?.names?.common,
       flag: country?.flag?.url_png,
       cca2: country?.codes?.alpha_2,
-      latlng:[country?.coordinates?.lng, country?.coordinates?.lat],
+      latlng: [country?.coordinates?.lng, country?.coordinates?.lat],
     }))
     ?.sort((a: any, b: any) => a?.name?.localeCompare(b?.name));
   await RedisHelper.redisSet('all-countries', formatData, {}, 60 * 60 * 24);
@@ -163,29 +163,49 @@ const searchCountries = async (searchTerm: string): Promise<
     latlng: number[];
   }[]
 > => {
-  const cache = await RedisHelper.redisGet('search-countries',{searchTerm});
+  const cache = await RedisHelper.redisGet('search-countries', { searchTerm });
   if (cache) return cache;
   const response = await fetch(`https://api.restcountries.com/countries/v5?q=${searchTerm}&pretty=1`, {
     headers: {
       authorization: `Bearer ${config.rest_country.api_key}`,
     },
   });
-  const data:CountryResponse = await response.json();
+  const data: CountryResponse = await response.json();
 
   const formatData = data?.data?.objects
     ?.map((country) => ({
       name: country?.names?.common,
       flag: country?.flag?.url_png,
       cca2: country?.codes?.alpha_2,
-      latlng:[country?.coordinates?.lng, country?.coordinates?.lat],
+      latlng: [country?.coordinates?.lng, country?.coordinates?.lat],
     }))
-  await RedisHelper.redisSet('search-countries', formatData, {searchTerm}, 60);
+  await RedisHelper.redisSet('search-countries', formatData, { searchTerm }, 60);
   return formatData;
+};
+
+
+const getSingleCountryDetails = async (country: string) => {
+  const response = await fetch(`https://api.restcountries.com/countries/v5/names.common?q=${country}&pretty=1`, {
+    headers: {
+      authorization: `Bearer ${config.rest_country.api_key}`,
+    },
+  });
+  const data: CountryResponse = await response.json();
+
+  const formatData = data?.data?.objects
+    ?.map((country) => ({
+      name: country?.names?.common,
+      flag: country?.flag?.url_png,
+      cca2: country?.codes?.alpha_2,
+      latlng: [country?.coordinates?.lng, country?.coordinates?.lat],
+    }))
+  return formatData[0];
 };
 
 export const countryHelper = {
   getCountrysRegions,
   getCountryBasedOnRegion,
   getAllCountries,
-  searchCountries
+  searchCountries,
+  getSingleCountryDetails
 };

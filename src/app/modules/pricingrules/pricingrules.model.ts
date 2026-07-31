@@ -9,6 +9,19 @@ const pricingrulesSchema = new Schema<IPricingrules, PricingrulesModel>({
   tax_percent: {
     type: Number,
     required: false
+  },
+  name: {
+    type: String,
+    required: false
+  },
+  type: {
+    type: String,
+    enum: ["country", "region", "global"],
+    required: true
+  },
+  cca2: {
+    type: String,
+    required: false
   }
 }, {
   timestamps: true
