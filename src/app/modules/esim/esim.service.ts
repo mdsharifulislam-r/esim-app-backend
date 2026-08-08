@@ -177,7 +177,7 @@ const makeOrderForPackage = async (payload: IMakeOrderRequest, user: JwtPayload)
         line_items: line_items,
         mode: 'payment',
         success_url: `${config.urls.frontend_url}/my-eSIMs`,
-        cancel_url: `${config.urls.frontend_url}/cart`,
+        cancel_url: `${config.urls.frontend_url}/secure-checkout`,
         metadata: {
             data: JSON.stringify(data)
         },
