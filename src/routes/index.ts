@@ -1,3 +1,5 @@
+import { NewsletterRoutes } from '../app/modules/newsletter/newsletter.route';
+import { ImagebannerRoutes } from '../app/modules/imagebanner/imagebanner.route';
 import { PricingrulesRoutes } from '../app/modules/pricingrules/pricingrules.route';
 import { BannerRoutes } from '../app/modules/banner/banner.route';
 import { CartRoutes } from '../app/modules/cart/cart.route';
@@ -65,7 +67,11 @@ export const apiRoutes: { path: string; route: any }[] = [
   { path: '/cart', route: CartRoutes },
   { path: '/banner', route: BannerRoutes },
   { path: '/pricingrules', route: PricingrulesRoutes },
+  { path: '/imagebanner', route: ImagebannerRoutes },
+  { path: '/newsletter', route: NewsletterRoutes },
 ];
+
+
 
 
 
