@@ -39,14 +39,14 @@ export const subregions = [
   {
     name: 'Middle East',
     slugname: 'middle-east',
-    tags: ['middle-east', 'me', 'gcc', 'arab', 'gulf'],
+    tags: ['middle-east','middle-east-and-north-africa'],
     image:
       'https://res.cloudinary.com/dkbcx9amc/image/upload/v1775025950/Rectangle_5289_6_uh9ror.png',
   },
   {
     name: 'North America',
     slugname: 'north-america',
-    tags: ['north-america', 'na', 'usa', 'canada', 'mexico'],
+    tags: ['north-america', 'canada', 'mexico'],
     image:
       'https://res.cloudinary.com/dkbcx9amc/image/upload/v1775025951/Rectangle_5289_1_u6kiqb.png',
   },

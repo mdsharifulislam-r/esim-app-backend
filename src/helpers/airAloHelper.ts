@@ -66,6 +66,7 @@ class AirAloHelper {
     const response = await this.requestHandler(url, 'GET', null, {
         'filter[type]': payload.type,
         'filter[country]': payload.country,
+        // 'filter[country]': payload.country,
         page: payload.page,
         limit: payload.limit
     });

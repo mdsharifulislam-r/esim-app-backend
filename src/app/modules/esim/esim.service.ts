@@ -46,6 +46,7 @@ const getPackagesOfEsim = async (payload: IGetPackagesRequest) => {
 const getRegionalEsim = async (region: string, page: number = 1, limit: number = 10, sort_order?: "price_low_to_high" | "price_high_to_low" | "validity_less_to_more" | "validity_more_to_less") => {
 
     const regionInfo = subregions.find((re) => re.slugname == region);
+    console.log("regionInfo", regionInfo)
     if (!regionInfo) throw new ApiError(StatusCodes.BAD_REQUEST, "Region not found!");
     const data = await airaloHelper.getPackages({
         type: "global",
@@ -59,7 +60,7 @@ const getRegionalEsim = async (region: string, page: number = 1, limit: number =
         formatedData = EsimHelper.sortPackages(formatedData, sort_order)
     }
     const filteredData = formatedData.filter((item) => {
-        return regionInfo.tags.some((tag) => item.countryName.includes(tag) || item.slug.includes(tag) || item.packageId.includes(tag));
+        return regionInfo.tags.some((tag) => item.slug.includes(tag));
     });
     return {
         data: filteredData,
