@@ -32,6 +32,10 @@ const getPackagesOfEsim = async (payload: IGetPackagesRequest) => {
         formatedData = EsimHelper.sortPackages(formatedData, payload.sort_order)
     }
 
+    if(payload.type=="global" && !payload.country){
+        formatedData = formatedData.filter((item) => item.slug=="world")
+    }
+
     return {
         data: formatedData,
         pagination: {
