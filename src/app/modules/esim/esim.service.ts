@@ -10,7 +10,7 @@ import { StatusCodes } from "http-status-codes";
 import stripe from "../../../config/stripe";
 import { Coupon, CouponUser } from "../coupon/coupon.model";
 import { subregions } from "../../../helpers/countryHelper";
-import { HoldDiscount } from "../admin/admin.model";
+import { Discount, HoldDiscount } from "../admin/admin.model";
 import { EmptyCountry } from "../country/country.model";
 import { Cart } from "../cart/cart.model";
 import config from "../../../config";
@@ -26,14 +26,17 @@ const getPackagesOfEsim = async (payload: IGetPackagesRequest) => {
         }
     }
 
+
+    const global_discount = (await Discount.findOne())?.user_discount || 0
+
     // return data.data
-    let formatedData = await EsimHelper.formatCountryPackagesToCard(data.data, data.pricing?.discount_percentage, (payload as any).type, payload.country);
+    let formatedData = await EsimHelper.formatCountryPackagesToCard(data.data, global_discount || data.pricing?.discount_percentage, (payload as any).type, payload.country);
     if (formatedData?.length && payload.sort_order) {
         formatedData = EsimHelper.sortPackages(formatedData, payload.sort_order)
     }
 
-    if(payload.type=="global" && !payload.country){
-        formatedData = formatedData.filter((item) => item.slug=="world")
+    if (payload.type == "global" && !payload.country) {
+        formatedData = formatedData.filter((item) => item.slug == "world")
     }
 
     return {
