@@ -12,6 +12,7 @@ import { handleChunkUpload } from './helpers/handleChunkUpload';
 import { fileStreamHandler } from './helpers/fileStreamingHelper';
 import { handleStripeWebhook } from './webhooks/handleStripeWebhook';
 import { handleAiraloWebhook } from './webhooks/handleAiraloWebhook';
+import passportHelper from './helpers/passportHelper';
 const app = express();
 app.post("/api/stripe/webhook",express.raw({type:"application/json"}),handleStripeWebhook); /// stripe webhook
 const limiter = rateLimit({

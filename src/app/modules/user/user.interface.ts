@@ -9,6 +9,7 @@ export type IUser = {
   password: string;
   country?: string;
   gender?: string;
+  isDeleted?: boolean;
   age?: number;
   date_of_birth?: Date;
   cover?: string;

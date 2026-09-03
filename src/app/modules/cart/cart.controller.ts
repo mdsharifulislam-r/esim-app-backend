@@ -6,7 +6,7 @@ import { StatusCodes } from 'http-status-codes';
 
 
 const createCart = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const data = await CartServices.createCart(req.user?.id, req.body)
+    const data = await CartServices.createCart((req.user as any)!.id, req.body)
 
     sendResponse(res, {
         statusCode: StatusCodes.OK,
@@ -17,7 +17,7 @@ const createCart = catchAsync(async (req: Request, res: Response, next: NextFunc
 })
 
 const getCart = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const data = await CartServices.getAllCart(req.user?.id)
+    const data = await CartServices.getAllCart((req.user as any)!.id)
 
     sendResponse(res, {
         statusCode: StatusCodes.OK,

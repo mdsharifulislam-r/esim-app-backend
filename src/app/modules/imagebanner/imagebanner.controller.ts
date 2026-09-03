@@ -19,7 +19,7 @@ const createImagebanner = catchAsync(async (req: Request, res: Response, next: N
 
 const getAllImagebanners = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
-    const result = await ImagebannerServices.getAllImagebanners(user);
+    const result = await ImagebannerServices.getAllImagebanners(user!);
     sendResponse(res, {
         statusCode: 200,
         success: true,

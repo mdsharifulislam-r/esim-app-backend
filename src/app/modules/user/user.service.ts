@@ -18,14 +18,20 @@ import config from '../../../config';
 
 const createUserToDB = async (payload: Partial<IUser>,res:Response) => {
   const isExist = await User.findOne({ email: payload.email });
-  if (isExist) {
+  if (isExist && isExist.isDeleted!=true) {
     if(isExist.status === 'delete') throw new ApiError(StatusCodes.BAD_REQUEST, 'You don’t have permission to access this content.It looks like your account has been deactivated.');
     if(!isExist.verified){
       return await AuthHelper.unverifiedAccountHandle(payload.email!,res);
     }
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Email already exist!');
-
   }
+
+
+  if(isExist && isExist.isDeleted==true){
+    await User.deleteMany({email:payload.email})
+  }
+
+  
 
   if(payload.refferal_code){
     payload.ref_referral_code = payload.refferal_code
@@ -109,7 +115,7 @@ const deleteUserFromDB = async (user: JwtPayload,password:string) => {
   }
   const deletedUser = await User.findOneAndUpdate(
     { _id: id },
-    { $set: { status: 'delete' } },
+    { $set: { status: 'delete',isDeleted:true } },
     { new: true }
   );
   return deletedUser;
@@ -213,7 +219,7 @@ const getRefferalStatistics = async (user: JwtPayload) => {
 }
 
 const getALlUsersFromDB = async (query:Record<string,any>) => {
-  const userQuery = new QueryBuilder(User.find({verified:true,role:USER_ROLES.USER}),query).paginate().sort().search(['name','email'])
+  const userQuery = new QueryBuilder(User.find({verified:true,role:USER_ROLES.USER,isDeleted:{$ne:true}}),query).paginate().sort().search(['name','email'])
   const [users,pagination] = await Promise.all([userQuery.modelQuery.exec(),userQuery.getPaginationInfo()]);
   return {data:users,pagination}
 };

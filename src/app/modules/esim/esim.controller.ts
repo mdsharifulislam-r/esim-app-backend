@@ -16,7 +16,7 @@ const getPackagesOfEsim = catchAsync(async (req: Request, res: Response) => {
 
 
 const makeOrderOfPackage = catchAsync(async (req: Request, res: Response) => {
-    const result = await EsimServices.makeOrderForPackage(req.body, req.user);
+    const result = await EsimServices.makeOrderForPackage(req.body, req.user!);
     sendResponse(res, {
         success: true,
         statusCode: 200,
@@ -37,7 +37,7 @@ const getEsimInstallationGuidelines = catchAsync(async (req: Request, res: Respo
 });
 
 const getUserAllEsimOrder = catchAsync(async (req: Request, res: Response) => {
-    const result = await EsimServices.getUserAllEsimOrder(req.user, req.query);
+    const result = await EsimServices.getUserAllEsimOrder(req.user!, req.query);
     sendResponse(res, {
         success: true,
         statusCode: 200,

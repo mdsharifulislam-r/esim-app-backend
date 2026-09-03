@@ -28,7 +28,7 @@ const createInfluencer =async (payload:Partial<IUser>) => {
 
 
 const getAllInfluencer =async (query:Record<string,any>) => {
-    const InfluencerQuery = new QueryBuilder(User.find({role:USER_ROLES.INFLUENCER,verified:true}),query).paginate().sort().search(['name','email'])
+    const InfluencerQuery = new QueryBuilder(User.find({role:USER_ROLES.INFLUENCER,verified:true,isDeleted:{$ne:true}}),query).paginate().sort().search(['name','email'])
     const [Influencer,pagination] = await Promise.all([InfluencerQuery.modelQuery.exec(),InfluencerQuery.getPaginationInfo()]);
     return {data:Influencer,pagination}
 }
@@ -40,7 +40,7 @@ const updateInfluencer =async (id:string,payload:Partial<IUser>) => {
 }
 
 const deleteInfluencer =async (id:string) => {
-    const Influencer = await User.findOneAndUpdate({_id:id},{status:'delete',verified:false},{new:true})
+    const Influencer = await User.findOneAndUpdate({_id:id},{status:'delete',verified:false,isDeleted:true},{new:true})
     return Influencer
 }
 
@@ -94,7 +94,7 @@ const createAdminIntoDB = async (payload: IAdmin) => {
 
 
 const getAllAdminsFromDB = async (query: Record<string, any>) => {
-    const adminQuery = new QueryBuilder(User.find({ role: { $in: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN] }, status: 'active' }), query).paginate().sort().fields().search(['name', 'email'])
+    const adminQuery = new QueryBuilder(User.find({ role: { $in: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN] }, status: 'active', isDeleted: { $ne: true } }), query).paginate().sort().fields().search(['name', 'email'])
 
     const [admins, pagination] = await Promise.all([
         adminQuery.modelQuery.lean(),
@@ -118,7 +118,7 @@ const deleteAdminFromDB = async (id: string) => {
     if (!user) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!")
     }
-    const deletedAdmin = await User.updateOne({ _id: id }, { $set: { status: 'delete' } })
+    const deletedAdmin = await User.updateOne({ _id: id }, { $set: { status: 'delete',isDeleted:true } })
     return deletedAdmin;
 }
 

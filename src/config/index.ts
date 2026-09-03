@@ -53,5 +53,10 @@ export default {
   },
   rest_country:{
     api_key: process.env.REST_COUNTRIES_API_KEY
+  },
+  google:{
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    client_secret: process.env.GOOGLE_CLIENT_SECRET,
+    redirect_url: process.env.GOOGLE_REDIRECT_URL
   }
 };

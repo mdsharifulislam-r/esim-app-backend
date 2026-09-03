@@ -22,7 +22,7 @@ const createUser = catchAsync(
 
 const getUserProfile = catchAsync(async (req: Request, res: Response) => {
   const user = req.user;
-  const result = await UserService.getUserProfileFromDB(user);
+  const result = await UserService.getUserProfileFromDB(user!);
 
   sendResponse(res, {
     success: true,
@@ -35,7 +35,7 @@ const getUserProfile = catchAsync(async (req: Request, res: Response) => {
 //update profile
 const updateProfile = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const user = req.user;
+    const user = req.user!;
     let image = getSingleFilePath(req.files, 'image');
     let cover = getSingleFilePath(req.files, 'cover');
 
@@ -71,7 +71,7 @@ const deleteUserFromDB = catchAsync(async (req: Request, res: Response) => {
   if (!req.body.password) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Password is required!');
   }
-  const user = req.user;
+  const user = req.user!;
   const result = await UserService.deleteUserFromDB(user, req.body.password);
   sendResponse(res, {
     success: true,
@@ -83,7 +83,7 @@ const deleteUserFromDB = catchAsync(async (req: Request, res: Response) => {
 
 
 const createConnectedAccount = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user;
+  const user = req.user!;
   const result = await UserService.createConnectedAccount(user);
   sendResponse(res, {
     success: true,
@@ -94,7 +94,7 @@ const createConnectedAccount = catchAsync(async (req: Request, res: Response) =>
 })
 
 const getRefferalStatistics = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user;
+  const user = req.user!;
   const result = await UserService.getRefferalStatistics(user);
   sendResponse(res, {
     success: true,

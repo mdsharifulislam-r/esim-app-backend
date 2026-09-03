@@ -29,7 +29,7 @@ const getAllCoupon = catchAsync(async (req: Request, res: Response) => {
 
 const checkCoupon = catchAsync(async (req: Request, res: Response) => {
     const { code, amount } = req.body;
-    const result = await CouponService.checkCouponFromDB(code,amount,req.user);
+    const result = await CouponService.checkCouponFromDB(code,amount,req.user!);
     sendResponse(res, {
         statusCode: StatusCodes.OK,
         success: true,

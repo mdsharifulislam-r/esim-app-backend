@@ -4,6 +4,11 @@ import auth from '../../middlewares/auth';
 import validateRequest from '../../middlewares/validateRequest';
 import { AuthController } from './auth.controller';
 import { AuthValidation } from './auth.validation';
+import passportHelper from '../../../helpers/passportHelper';
+import { jwtHelper } from '../../../helpers/jwtHelper';
+import { Secret } from 'jsonwebtoken';
+import { IUser } from '../user/user.interface';
+import config from '../../../config';
 const router = express.Router();
 
 router.post(
@@ -41,5 +46,20 @@ router.post(
   '/guest-login',
   AuthController.guestLoginToDB
 );
+
+router.get('/google-sign-in',(req,res,next)=>{
+  passportHelper.passport.authenticate('google', { scope: ['email', 'profile'],state:req.query.role as any})(req, res, next);
+}, );
+
+router.get('/google/callback', passportHelper.passport.authenticate('google', { session: false }), (req, res) => {
+
+  const user = req.user as any as IUser&{_id:string};
+  
+  const accessToken = jwtHelper.createToken({ id: user._id, role: user.role, email: user.email }, config.jwt.jwt_secret as Secret, config.jwt.jwt_expire_in as string);
+  const refreshToken = jwtHelper.createToken({ id: user._id, role: user.role, email: user.email }, config.jwt.jwt_secret as Secret, "25d");
+
+  res.redirect(`${config.urls.frontend_url}?accessToken=${accessToken}&refreshToken=${refreshToken}&role=${user.role}`);
+  
+});
 
 export const AuthRoutes = router;
