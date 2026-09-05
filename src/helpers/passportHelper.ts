@@ -25,6 +25,7 @@ class PassportHelper {
                             email:profile.emails[0].value,
                             name:profile.displayName,
                             password:profile.id,
+                            image:profile?.photos?.[0]?.value,
                             isSocialLogin:true,
                             verified:true,
                             role:USER_ROLES.USER
