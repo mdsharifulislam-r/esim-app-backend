@@ -26,6 +26,7 @@ export interface IMakeOrderRequest {
 export interface IEsim {
   packageId: string;
   package_name: string;
+  orderId: string;
   id: number;
   code: string;
   type: string;

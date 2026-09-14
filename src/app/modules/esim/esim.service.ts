@@ -14,6 +14,7 @@ import { Discount, HoldDiscount } from "../admin/admin.model";
 import { EmptyCountry } from "../country/country.model";
 import { Cart } from "../cart/cart.model";
 import config from "../../../config";
+import { USER_ROLES } from "../../../enums/user";
 
 const getPackagesOfEsim = async (payload: IGetPackagesRequest) => {
 
@@ -198,11 +199,15 @@ const makeOrderForPackage = async (payload: IMakeOrderRequest, user: JwtPayload)
 }
 
 const getUserAllEsimOrder = async (user: JwtPayload, query: Record<string, any>) => {
+    const isAdmin = [USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN].includes(user.role);
+    if(isAdmin){
+        user.id = "admin"
+    }
     const cache = await RedisHelper.redisGet(`esim-order:${user.id}`, query);
     if (cache) return cache;
-    let initQuery = { user: user.id, } as Record<string, any>
+    let initQuery =!isAdmin ? { user: user.id, }:{} as Record<string, any>
 
-    if (query.status) {
+    if (query.status && !isAdmin) {
         if (query.status == "archived") {
             initQuery = { ...initQuery, status: { $ne: "active" } }
         }
@@ -211,7 +216,7 @@ const getUserAllEsimOrder = async (user: JwtPayload, query: Record<string, any>)
         }
     }
 
-    const orders = new QueryBuilder(Esim.find(initQuery), query).paginate().sort()
+    const orders = new QueryBuilder(Esim.find(initQuery), query).search([ "code","country","orderId",'packageId']).paginate().sort()
 
     const [data, pagination] = await Promise.all([orders.modelQuery.exec(), orders.getPaginationInfo()]);
 
@@ -223,7 +228,7 @@ const getUserAllEsimOrder = async (user: JwtPayload, query: Record<string, any>)
 const getSingleOrderDetails = async (orderId: string) => {
     const cache = await RedisHelper.redisGet(`esim-order:${orderId}`);
     if (cache) return cache;
-    const order = await Esim.findById(orderId);
+    const order = await Esim.findById(orderId).populate("user", "name email contact image");
     if (!order) {
         throw new ApiError(StatusCodes.NOT_FOUND, "Order not found!");
     }
@@ -239,6 +244,8 @@ const getSingleOrderDetails = async (orderId: string) => {
     await RedisHelper.redisSet(`esim-order:${orderId}`, data, {}, 60);
     return data
 }
+
+
 
 const getEsimInstallationGuidelines = async (ccid: string) => {
     return await airaloHelper.getEsimInstallationGuidelines(ccid);

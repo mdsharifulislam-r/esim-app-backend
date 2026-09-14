@@ -101,6 +101,10 @@ const esimSchema = new mongoose.Schema<IEsim,IEsimModel>({
         type: Number,
         required: false,
         default: 0
+    },
+    orderId: {
+        type: String,
+        required: false
     }
 
 }, { timestamps: true });
@@ -109,6 +113,7 @@ const esimSchema = new mongoose.Schema<IEsim,IEsimModel>({
 esimSchema.index({ user: 1});
 esimSchema.pre('save', async function (next) {
     this.endDate = new Date(Date.now() + this.validity * 24 * 60 * 60 * 1000) 
+    this.orderId = `LFEB-${Math.floor(100000 + Math.random() * 900000).toString()}`
     next();
 })
 export const Esim = mongoose.model<IEsim, IEsimModel>('Esim', esimSchema);

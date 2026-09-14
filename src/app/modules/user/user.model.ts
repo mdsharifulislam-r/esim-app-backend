@@ -32,7 +32,7 @@ const userSchema = new Schema<IUser, UserModal>(
     },
     image: {
       type: String,
-      default: 'https://i.ibb.co/z5YHLV9/profile.png',
+      default: 'https://res.cloudinary.com/dkbcx9amc/image/upload/v1789362058/image_2_aascrp.jpg',
     },
     status: {
       type: String,
