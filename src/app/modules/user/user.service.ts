@@ -219,7 +219,7 @@ const getRefferalStatistics = async (user: JwtPayload) => {
 }
 
 const getALlUsersFromDB = async (query:Record<string,any>) => {
-  const userQuery = new QueryBuilder(User.find({verified:true,role:USER_ROLES.USER,isDeleted:{$ne:true}}),query).paginate().sort().search(['name','email'])
+  const userQuery = new QueryBuilder(User.find({verified:true,role:{$nin:[USER_ROLES.SUPER_ADMIN,USER_ROLES.ADMIN]},isDeleted:{$ne:true}}),query).paginate().sort().search(['name','email'])
   const [users,pagination] = await Promise.all([userQuery.modelQuery.exec(),userQuery.getPaginationInfo()]);
   return {data:users,pagination}
 };

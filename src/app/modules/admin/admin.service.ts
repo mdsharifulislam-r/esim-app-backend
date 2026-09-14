@@ -67,7 +67,7 @@ const getDiscountForUser = async () => {
 
 
 const getSystemStatistic = async () => {
-    const [totalUsers,totalInfuencer] = await Promise.all([User.countDocuments({role:USER_ROLES.USER}),User.countDocuments({role:USER_ROLES.INFLUENCER})])
+    const [totalUsers,totalInfuencer] = await Promise.all([User.countDocuments({role:{$nin:[USER_ROLES.SUPER_ADMIN,USER_ROLES.ADMIN]},verified:true}),User.countDocuments({role:USER_ROLES.INFLUENCER})])
     const totalRavinue = await Esim.aggregate([
         {
             $group: {
