@@ -48,7 +48,7 @@ const getUserAllEsimOrder = catchAsync(async (req: Request, res: Response) => {
 })
 
 const getSingleOrderDetails = catchAsync(async (req: Request, res: Response) => {
-    const result = await EsimServices.getSingleOrderDetails(req.params.id);
+    const result = await EsimServices.getSingleOrderDetails(req.params.id) 
     sendResponse(res, {
         success: true,
         statusCode: 200,

@@ -1,7 +1,7 @@
-import config from "../config";
 import {
   ICreateAccount,
   IResetPassword,
+  IBookingConfirmation,
 } from "../types/emailTamplate";
 
 const PRIMARY = "#009A54";
@@ -97,7 +97,7 @@ const otpBox = (otp: string) => `
 </div>
 `;
 
-const bookingDetails = (values: any) => `
+const bookingDetails = (values: IBookingConfirmation) => `
 <table
   width="100%"
   cellspacing="0"
@@ -404,7 +404,7 @@ const resetPassword = (values: IResetPassword) => {
    BOOKING CONFIRMATION - USER
 ========================================================= */
 
-const bookingConfirmation = (values: any) => {
+const bookingConfirmation = (values: IBookingConfirmation) => {
   const content = `
     <h2 style="margin:0 0 10px;color:#111;">
       Booking Confirmed
@@ -466,7 +466,7 @@ const bookingConfirmation = (values: any) => {
 ========================================================= */
 
 const adminBookingConfirmation = (
-  values: any
+  values: IBookingConfirmation
 ) => {
   const content = `
     <h2 style="margin:0 0 10px;color:#111;">
@@ -601,7 +601,7 @@ const adminBookingConfirmation = (
   `;
 
   return {
-    to: config.email.from!,
+    to: values.adminEmail,
     subject: `New Booking - ${values.packageName}`,
     html: baseTemplate(content),
   };

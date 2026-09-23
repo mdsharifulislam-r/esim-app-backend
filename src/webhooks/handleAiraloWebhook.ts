@@ -9,6 +9,8 @@ import { Cart } from '../app/modules/cart/cart.model';
 import { EsimServices } from '../app/modules/esim/esim.service';
 import { emailTemplate } from '../shared/emailTemplate';
 import { emailHelper } from '../helpers/emailHelper';
+import { EsimOrderResponse } from '../app/modules/esim/esim.interface';
+import config from '../config';
 
 export const handleAiraloWebhook = async (req: Request, res: Response) => {
   const mongoSession = await mongoose.startSession();
@@ -78,18 +80,35 @@ export const handleAiraloWebhook = async (req: Request, res: Response) => {
 
     await mongoSession.commitTransaction();
     mongoSession.endSession();
-        const singleBookingDetails = await EsimServices.getSingleOrderDetails(esim[0]?._id as any);
-        const userConfomrationEmailTemplate = emailTemplate.bookingConfirmation(singleBookingDetails);
-        const adminConfomrationEmailTemplate = emailTemplate.adminBookingConfirmation(singleBookingDetails);
+        const singleBookingDetails = await EsimServices.getSingleOrderDetails(esim[0]?._id as any) as EsimOrderResponse
+        const emailData = {
+          bookingId: singleBookingDetails.order._id,
+          country: singleBookingDetails.order.country,
+          data: singleBookingDetails.order.data,
+          adminEmail: config.email.from!,
+          email: singleBookingDetails.order.user?.email,
+          name: singleBookingDetails.order.user?.name,
+          packageName: singleBookingDetails.order.package_name,
+          quantity: singleBookingDetails.order.quantity,
+          validity: singleBookingDetails.order.validity,
+          price: singleBookingDetails.order.price,
+          status: singleBookingDetails.order.status,
+          contact: singleBookingDetails.order.user?.contact
+
+        }
+        console.log(emailData);
+        const userConfomrationEmailTemplate = emailTemplate.bookingConfirmation(emailData);
+
+        const adminConfomrationEmailTemplate = emailTemplate.adminBookingConfirmation(emailData);
         await Promise.allSettled([
           emailHelper.sendEmail(userConfomrationEmailTemplate),
           emailHelper.sendEmail(adminConfomrationEmailTemplate)
         ])
     return res.status(200).json({ esim });
   } catch (error) {
+    console.log(error);
     await mongoSession.abortTransaction();
     mongoSession.endSession();
-    console.log(error);
     return res.status(500).json({ error });
   }
 };
