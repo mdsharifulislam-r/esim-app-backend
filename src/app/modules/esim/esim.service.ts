@@ -220,7 +220,7 @@ const getUserAllEsimOrder = async (user: JwtPayload, query: Record<string, any>)
 
     const [data, pagination] = await Promise.all([orders.modelQuery.exec(), orders.getPaginationInfo()]);
 
-    await RedisHelper.redisSet(`esim-order:${user.id}`, { data, pagination }, query, 60 * 60 * 24);
+    await RedisHelper.redisSet(`esim-order:${user.id}`, { data, pagination }, query, 60 * 60);
     return { data, pagination }
 
 }

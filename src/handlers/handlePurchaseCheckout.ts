@@ -9,6 +9,7 @@ import {
   sendNotificationsAdmin,
 } from '../helpers/notificationHelper';
 import { HoldDiscount } from '../app/modules/admin/admin.model';
+import { EsimServices } from '../app/modules/esim/esim.service';
 
 export const handlePurchaseCheckout = async (data: Stripe.Checkout.Session) => {
   const mongoSession = await mongoose.startSession();
@@ -107,6 +108,8 @@ export const handlePurchaseCheckout = async (data: Stripe.Checkout.Session) => {
     }
     await mongoSession.commitTransaction();
     mongoSession.endSession();
+
+
   } catch (error) {
     mongoSession.abortTransaction();
     mongoSession.endSession();

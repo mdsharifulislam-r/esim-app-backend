@@ -6,6 +6,9 @@ import { RedisHelper } from '../tools/redis/redis.helper';
 import { sendNotifications, sendNotificationsAdmin } from '../helpers/notificationHelper';
 import { EsimPackage } from '../types/packagesType';
 import { Cart } from '../app/modules/cart/cart.model';
+import { EsimServices } from '../app/modules/esim/esim.service';
+import { emailTemplate } from '../shared/emailTemplate';
+import { emailHelper } from '../helpers/emailHelper';
 
 export const handleAiraloWebhook = async (req: Request, res: Response) => {
   const mongoSession = await mongoose.startSession();
@@ -75,6 +78,13 @@ export const handleAiraloWebhook = async (req: Request, res: Response) => {
 
     await mongoSession.commitTransaction();
     mongoSession.endSession();
+        const singleBookingDetails = await EsimServices.getSingleOrderDetails(esim[0]?._id as any);
+        const userConfomrationEmailTemplate = emailTemplate.bookingConfirmation(singleBookingDetails);
+        const adminConfomrationEmailTemplate = emailTemplate.adminBookingConfirmation(singleBookingDetails);
+        await Promise.allSettled([
+          emailHelper.sendEmail(userConfomrationEmailTemplate),
+          emailHelper.sendEmail(adminConfomrationEmailTemplate)
+        ])
     return res.status(200).json({ esim });
   } catch (error) {
     await mongoSession.abortTransaction();
